@@ -55,6 +55,10 @@
             "Microsoft.Data.Sqlite": {
               "target": "Package",
               "version": "[10.0.7, )"
+            },
+            "MySql.Data": {
+              "target": "Package",
+              "version": "[9.7.0, )"
             }
           },
           "imports": [
