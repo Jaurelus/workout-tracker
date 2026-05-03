@@ -18,7 +18,7 @@ import { useSidebar } from "../components/ui/sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "../components/mode-toggle";
 import { Button } from "../components/ui/button";
-import { ListPlus } from "lucide-react";
+import { CircleX, ListPlus, PencilRuler } from "lucide-react";
 import AddExerciseModal from "@/pageComponents/addExerciseModal";
 import {
   Table,
@@ -106,6 +106,18 @@ function Appp() {
                       <TableCell>{exercise.primary}</TableCell>
                       <TableCell>{exercise.secondary}</TableCell>
                       <TableCell>{exercise.tips}</TableCell>
+                      <div>
+                        <TableCell>
+                          <Button variant="ghost">
+                            <PencilRuler />
+                          </Button>
+                        </TableCell>
+                        <TableCell>
+                          <Button variant="ghost">
+                            <CircleX />
+                          </Button>
+                        </TableCell>
+                      </div>
                     </TableRow>
                   ))}
                 </TableBody>
