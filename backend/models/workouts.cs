@@ -5,6 +5,6 @@ namespace WorkoutTrackerAPI.models
         public int Id {get;set;}
         public DateTime Date {get;set;}
         public string Focus {get;set;} = String.Empty;
-        public required Sets Set {get;set;}
+        public required WSets Set {get;set;}
     }
 }

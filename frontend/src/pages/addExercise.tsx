@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import "../App.css";
 import {
@@ -19,8 +19,38 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "../components/mode-toggle";
 import { Button } from "../components/ui/button";
 import { ListPlus } from "lucide-react";
+import AddExerciseModal from "@/pageComponents/addExerciseModal";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Link } from "react-router-dom";
 
 function Appp() {
+  const [addModalVis, setAddModalVis] = useState(false);
+  const [exercises, setExercises] = useState<any>(null);
+
+  //------------- API CALL -------------
+  const getExercises = async () => {
+    const response = await fetch("http://localhost:5117/getExercises", {
+      headers: { "Content-Type": "application/json" },
+      method: "GET",
+    });
+    const data = await response.json();
+    if (response.status == 200) {
+      console.log("Success", data);
+      setExercises(data);
+    }
+  };
+  useEffect(() => {
+    getExercises();
+  });
+
+  //------------- APP BUILD ------------
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <SidebarProvider className="text-center">
@@ -28,18 +58,26 @@ function Appp() {
           variant="sidebar"
           className="flex-row flex-1 flex justify-between"
         >
-          <SidebarHeader className="py-8 font-bold text-xl">Work</SidebarHeader>
+          <SidebarHeader className="py-8 font-bold text-xl">
+            <Link to="/">Work</Link>
+          </SidebarHeader>
           <SidebarContent className="mt-12">
             <SidebarMenu className="gap-8">
               <SidebarMenuItem>
-                <Button variant="ghost">Log a New Workout</Button>
+                <Link to="/logWorkout">
+                  <Button variant="ghost">Log a New Workout</Button>
+                </Link>
                 <SidebarMenuAction></SidebarMenuAction>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <Button variant="ghost">Add a new exercise </Button>
+                <Link to="/addExercise">
+                  <Button variant="ghost">Add a new exercise </Button>
+                </Link>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <Button variant="ghost"> View Past Workouts</Button>
+                <Link to="/pastWorkouts">
+                  <Button variant="ghost"> View Past Workouts</Button>
+                </Link>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarContent>
@@ -52,20 +90,43 @@ function Appp() {
             <ModeToggle />
           </div>
           {/*Table */}
-          <div className="mt-5">
-            <table>
-              <thead className="gap-5 flex">
-                <th>Exercise Name</th>
-                <th>Primary Muscles Targeted</th>
-                <th>Secondary Muscles Targeted</th>
-                <th>Tips</th>
-              </thead>
-              <tbody></tbody>
-            </table>
+          <div className="mt-5 w-[75%] flex">
+            <Table>
+              <TableHeader>
+                <TableHead className="text-center">Exercise Name</TableHead>
+                <TableHead className="text-center">Primary Muscles</TableHead>
+                <TableHead className="text-center">Secondary Muscles</TableHead>
+                <TableHead className="text-center">Tips</TableHead>
+              </TableHeader>
+              {exercises && (
+                <TableBody id="tBody">
+                  {exercises.map((exercise, index) => (
+                    <TableRow key={exercise.Id}>
+                      <TableCell>{exercise.name}</TableCell>
+                      <TableCell>{exercise.primary}</TableCell>
+                      <TableCell>{exercise.secondary}</TableCell>
+                      <TableCell>{exercise.tips}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              )}
+            </Table>
           </div>
-          <Button className="rounded-4xl items-center bottom-0">
+          <Button
+            className="rounded-4xl items-center bottom-0"
+            onClick={() => {
+              setAddModalVis((prev) => !prev);
+            }}
+          >
             <ListPlus size={16} color="white" />
           </Button>
+          <div>
+            <AddExerciseModal
+              visibility={addModalVis}
+              changeVisibility={setAddModalVis}
+            />
+            <Button onClick={getExercises}>test</Button>
+          </div>
         </main>
       </SidebarProvider>
     </ThemeProvider>

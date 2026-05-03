@@ -13,11 +13,10 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "./components/ui/sidebar";
-import { AppSidebar } from "./components/app-sidebar";
-import { useSidebar } from "./components/ui/sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "./components/mode-toggle";
 import { Button } from "./components/ui/button";
+import { Link } from "react-router-dom";
 
 function App() {
   return (
@@ -27,15 +26,21 @@ function App() {
           variant="sidebar"
           className="flex-row flex-1 flex justify-between"
         >
-          <SidebarHeader className="py-8 font-bold text-xl">Work</SidebarHeader>
+          <SidebarHeader className="py-8 font-bold text-xl">
+            <Link to="/">Work</Link>
+          </SidebarHeader>
           <SidebarContent className="mt-12">
             <SidebarMenu className="gap-8">
               <SidebarMenuItem>
-                <Button variant="ghost">Log a New Workout</Button>
+                <Link to="/logWorkout">
+                  <Button variant="ghost">Log a New Workout</Button>
+                </Link>
                 <SidebarMenuAction></SidebarMenuAction>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <Button variant="ghost">Add a new exercise </Button>
+                <Link to="/addExercise">
+                  <Button variant="ghost">Add a new exercise </Button>
+                </Link>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <Button variant="ghost"> View Past Workouts</Button>

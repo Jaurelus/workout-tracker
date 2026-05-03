@@ -1,3 +1,8 @@
+using System.Data.Common;
+using WorkoutTrackerAPI;
+using WorkoutTrackerAPI.models;
+using WorkoutTrackerAPI.repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -17,6 +22,10 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddSingleton<DbConnectionFactory>();
+builder.Services.AddScoped<ExercisesRepository>();
+
+
 var app = builder.Build();
 
 app.UseCors("AllowReactApp");
@@ -30,28 +39,25 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
 
+app.MapPost("/addExercise", async(Exercises exercise, ExercisesRepository repo) =>
+{
+    await repo.addExercise(exercise);
+    return Results.Created($"/exercises/{exercise.Id}",exercise);
+});
+app.MapGet("/getExercises", async( ExercisesRepository repo) =>
+{
+    
+     var exercises = await repo.getExercises();
+    return Results.Ok(exercises);
+});
+
+app.MapGet("/getExerciseNames", async( ExercisesRepository repo) =>
+{
+    
+     var exercises = await repo.getExerciseNames();
+    return Results.Ok(exercises);
+});
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
