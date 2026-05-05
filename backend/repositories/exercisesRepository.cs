@@ -1,13 +1,12 @@
 using Dapper;
 using WorkoutTrackerAPI.models;
-using WorkoutTrackerAPI;
 using System.Text.Json;
 
 namespace WorkoutTrackerAPI.repositories
 {
 public class ExercisesRepository
 {
-    private readonly WorkoutTrackerAPI.DbConnectionFactory _db;
+    private readonly DbConnectionFactory _db;
 
         public ExercisesRepository(DbConnectionFactory db)
         {
@@ -34,10 +33,27 @@ public class ExercisesRepository
              Tips = JsonSerializer.Serialize(exercise.Tips)
          });
         }
-    public async Task<IEnumerable<Exercises>> getExercises()
+    public async Task<IEnumerable<Exercises>> getExercises(int? id)
         {
             using var connection = _db.CreateConnection();
-                var rows = await connection.QueryAsync("SELECT * FROM Exercises");
+            if (id != null)
+            {
+                var row = await connection.QueryFirstOrDefaultAsync(@"SELECT * FROM Exercises WHERE eID = @id");
+                return new List<Exercises>
+                {
+                    new Exercises
+                    {
+                        Id = row.eID,
+                        Name = row.eName,
+                        Primary = JsonSerializer.Deserialize<List<string>>(row.primaryMuscle),
+                        Secondary = JsonSerializer.Deserialize<List<string>>(row.secondaryMuscle),
+                        Tips = JsonSerializer.Deserialize<List<string>>(row.tips)
+                        
+                    }
+                };
+                
+            }
+            else {var rows = await connection.QueryAsync("SELECT * FROM Exercises");
 
         return rows.Select(row => new Exercises
     {
@@ -46,7 +62,8 @@ public class ExercisesRepository
         Primary = JsonSerializer.Deserialize<List<string>>(row.primaryMuscle),
         Secondary = JsonSerializer.Deserialize<List<string>>(row.secondaryMuscle),
         Tips = JsonSerializer.Deserialize<List<string>>(row.tips)
-    });            
+    });            }
+                
         }
     
     public async Task<IEnumerable<string>> getExerciseNames()

@@ -24,6 +24,8 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddSingleton<DbConnectionFactory>();
 builder.Services.AddScoped<ExercisesRepository>();
+builder.Services.AddScoped<SetsRepository>();
+
 
 
 var app = builder.Build();
@@ -46,10 +48,10 @@ app.MapPost("/addExercise", async(Exercises exercise, ExercisesRepository repo) 
     await repo.addExercise(exercise);
     return Results.Created($"/exercises/{exercise.Id}",exercise);
 });
-app.MapGet("/getExercises", async( ExercisesRepository repo) =>
+app.MapGet("/getExercises", async( ExercisesRepository repo, int? id) =>
 {
     
-     var exercises = await repo.getExercises();
+     var exercises = await repo.getExercises(id);
     return Results.Ok(exercises);
 });
 
@@ -59,5 +61,12 @@ app.MapGet("/getExerciseNames", async( ExercisesRepository repo) =>
      var exercises = await repo.getExerciseNames();
     return Results.Ok(exercises);
 });
+
+app.MapPost("/addSet", async(WSets set, SetsRepository repo) =>
+{
+    await repo.addSet(set);
+    return Results.Created($"/sets/{set.Id}",set);
+});
+
 app.Run();
 
