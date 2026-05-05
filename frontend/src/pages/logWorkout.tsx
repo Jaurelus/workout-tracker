@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import "../App.css";
 import {
@@ -13,7 +13,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "../components/ui/sidebar";
-import { ChevronDownIcon } from "lucide-react";
+import { Check, ChevronDownIcon } from "lucide-react";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "../components/mode-toggle";
@@ -61,6 +61,7 @@ import {
   ComboboxItem,
   ComboboxTrigger,
 } from "@/components/ui/combobox";
+import MySidebar from "@/pageComponents/sidebar";
 
 function LogWorkout() {
   const [date, setDate] = useState(new Date());
@@ -74,6 +75,10 @@ function LogWorkout() {
   const [exercises, setExercises] = useState([]);
   const [filteredList, setFilteredList] = useState([]);
   const [filteredExercises, setFilteredExercises] = useState([]);
+  const weight = useRef([]);
+  const reps = useRef([]);
+  const wsetExercises = useRef([]);
+  const [addExerciseVis, setAddExerciseVis] = useState(false);
 
   const foci = [
     "Push (Chest, Tricep, Shoulders",
@@ -88,29 +93,6 @@ function LogWorkout() {
     "Legs(Hamstring Focused)",
     "Abs",
   ];
-  const filterPopover = () => {
-    const fPopover = document.getElementById("focusPopover");
-
-    let results = fPopover.getHTML().split("</p>");
-    results.pop();
-    const sliced = results.map((result) => {
-      return result.slice(3);
-    });
-
-    if (focus) {
-      fPopover.innerHTML = "";
-
-      let filtered = sliced.filter((slice) => slice.includes(focus));
-      console.log("Sliced", sliced);
-      console.log("Filter", filtered);
-      filtered.forEach((item) => {
-        console.log(item);
-        fPopover.innerHTML = `<p>${item}</p>`;
-        console.log("Pop", fPopover.innerHTML);
-      });
-    }
-    console.log("HTML", fPopover.innerHTML);
-  };
 
   const addSet = () => {
     addSetRow((prev) => [...prev, { key: prev.length + 1 }]);
@@ -126,45 +108,50 @@ function LogWorkout() {
     });
     const data = await response.json();
     if (response.ok) {
-      console.log("Success");
       setExercises(data);
     }
   };
   useEffect(() => {
     getExerciseNames();
   }, []);
+
+  const addSetSQL = async (
+    weightIteration: Number,
+    repIteration: Number,
+    exerciseIteration: string,
+  ) => {
+    console.log(
+      "Name",
+      exerciseIteration,
+      " Weight: ",
+      weightIteration + "Rep: ",
+      repIteration,
+    );
+    const response = await fetch("http://localhost:5117/addSet", {
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+      body: JSON.stringify({
+        exercises: { name: exerciseIteration },
+        name: exerciseIteration,
+        reps: repIteration,
+        weight: weightIteration,
+      }),
+    });
+    console.log(response.status, response.statusText);
+    const data = await response.json();
+    console.log(data.status);
+    if (response.status == 201) {
+      console.log("Success logging\n", data);
+    } else {
+      console.log("Error", response.body);
+    }
+  };
   //------------- APP BUILD ------------
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <SidebarProvider className="text-center">
-        <Sidebar
-          variant="sidebar"
-          className="flex-row flex-1 flex justify-between"
-        >
-          <SidebarHeader className="py-8 font-bold text-xl">
-            <Link to="/">Work</Link>
-          </SidebarHeader>
-          <SidebarContent className="mt-12">
-            <SidebarMenu className="gap-8">
-              <SidebarMenuItem>
-                <Link to="/logWorkout">
-                  <Button variant="ghost">Log a New Workout</Button>
-                </Link>
-                <SidebarMenuAction></SidebarMenuAction>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <Link to="/addExercise">
-                  <Button variant="ghost">Add a new exercise </Button>
-                </Link>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <Link to="/pastWorkouts">
-                  <Button variant="ghost"> View Past Workouts</Button>
-                </Link>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarContent>
-        </Sidebar>
+        <MySidebar />
+
         <SidebarTrigger></SidebarTrigger>
 
         <main className="w-screen flex flex-col flex-1 items-center p-5">
@@ -280,6 +267,10 @@ function LogWorkout() {
                       >
                         <ComboboxInput
                           value={exerciseInput || undefined}
+                          onBlur={(e) => {
+                            wsetExercises.current[exercise.key] =
+                              e.target.value;
+                          }}
                           className="border-primary"
                           showTrigger={false}
                           onInput={(e) => {
@@ -322,7 +313,7 @@ function LogWorkout() {
                       </ComboboxContent>
                     </Combobox>
                   </div>
-                  {/*Everything but exercise name */}
+                  {/* Set Info */}
                   <div className="flex-row">
                     {setRow.map((set) => (
                       <div
@@ -345,38 +336,75 @@ function LogWorkout() {
                         </div>
                         <div className="">
                           <FieldLabel className="mb-2">Weight</FieldLabel>
-                          <Input placeholder="" className="w-16"></Input>
+                          <Input
+                            placeholder=""
+                            className="w-16"
+                            onInput={(e) => {
+                              weight.current[exercise.key] = e.target.value;
+                            }}
+                          ></Input>
                         </div>
                         <div className="">
                           <FieldLabel className="mb-2">Reps</FieldLabel>
-                          <Input className="w-12"></Input>
+                          <Input
+                            className="w-12"
+                            onInput={(e) => {
+                              reps.current[exercise.key] = e.target.value;
+                            }}
+                          ></Input>
                         </div>
                       </div>
                     ))}
-                    <Button
-                      variant="ghost"
-                      className="hover:bg-transparent! flex ml-5"
-                      onClick={() => {
-                        addSet();
-                      }}
-                    >
-                      Add Set?
-                    </Button>
+                    <div className="flex justify-between">
+                      <Button
+                        variant="ghost"
+                        className="hover:bg-transparent! flex ml-5"
+                        onClick={() => {
+                          addSet();
+                        }}
+                      >
+                        Add Set?
+                      </Button>
+                      <Button
+                        size="xs"
+                        className="bg-primary rounded-full mr-14 mt-2"
+                        onClick={() => {
+                          for (let i = 0; i < reps.current.length; i++) {
+                            addSetSQL(
+                              weight.current[i],
+                              reps.current[i],
+                              wsetExercises.current[i],
+                            );
+                          }
+                          setAddExerciseVis(true);
+                        }}
+                      >
+                        <Check color="white" />
+                      </Button>
+                    </div>
                   </div>
                 </Field>
               ))}
-              <Button
-                variant="ghost"
-                className="hover:bg-transparent! "
-                onClick={() => {
-                  addExercise();
-                }}
-              >
-                Add Exercise?
-              </Button>
+              {addExerciseVis && (
+                <Button
+                  variant="ghost"
+                  className="hover:bg-transparent! "
+                  onClick={() => {
+                    addExercise();
+                    setAddExerciseVis(false);
+                  }}
+                >
+                  Add Exercise?
+                </Button>
+              )}
             </CardContent>
             <CardFooter className="justify-center mt-5">
-              <Button className="text-white w-full">Log Workout</Button>
+              <Button
+                className="text-white w-full"
+                disabled={addExerciseVis ? false : true}
+              >
+                Log Workout
+              </Button>
             </CardFooter>
           </Card>
         </main>

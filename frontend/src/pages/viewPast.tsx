@@ -22,6 +22,8 @@ import { Link } from "react-router-dom";
 import { Table, TableHead, TableHeader } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRightToLine } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import MySidebar from "@/pageComponents/sidebar";
 
 function ViewPast() {
   const [viewColor, setViewColor] = useState("#d23f2f");
@@ -31,34 +33,8 @@ function ViewPast() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <SidebarProvider className="text-center">
-        <Sidebar
-          variant="sidebar"
-          className="flex-row flex-1 flex justify-between"
-        >
-          <SidebarHeader className="py-8 font-bold text-xl">
-            <Link to="/">Work</Link>
-          </SidebarHeader>
-          <SidebarContent className="mt-12">
-            <SidebarMenu className="gap-8">
-              <SidebarMenuItem>
-                <Link to="/logWorkout">
-                  <Button variant="ghost">Log a New Workout</Button>
-                </Link>
-                <SidebarMenuAction></SidebarMenuAction>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <Link to="/addExercise">
-                  <Button variant="ghost">Add a new exercise </Button>
-                </Link>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <Link to="/pastWorkouts">
-                  <Button variant="ghost"> View Past Workouts</Button>
-                </Link>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarContent>
-        </Sidebar>
+        <MySidebar />
+
         <SidebarTrigger></SidebarTrigger>
 
         <main className="w-screen flex flex-col flex-1 items-center p-5">
