@@ -79,6 +79,9 @@ function LogWorkout() {
   const reps = useRef([]);
   const wsetExercises = useRef([]);
   const [addExerciseVis, setAddExerciseVis] = useState(false);
+  const [existVariable, setexistVariable] = useState("");
+
+  const [eName, setEName] = useState("");
 
   const foci = [
     "Push (Chest, Tricep, Shoulders",
@@ -102,6 +105,45 @@ function LogWorkout() {
     addExerciseRow((prev) => [...prev, { key: prev.length + 1 }]);
   };
   //------------- API CALL -------------
+
+  const addExerciseSQL = async () => {
+    if (!eName) {
+      return;
+    }
+    const response = await fetch("http://localhost:5117/addExercise", {
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+      body: JSON.stringify({
+        name: eName,
+      }),
+    });
+    const data = await response.json();
+    if (response.status == 201) {
+      console.log(" Add SQL Success\n", data);
+    } else {
+      console.log(response.body);
+    }
+  };
+
+  const exerciseExists = async (exerciseName: string) => {
+    console.log("Exercise Name: " + exerciseName);
+    setEName(exerciseName);
+    const response = await fetch(
+      `http://localhost:5117/exerciseExists?exerciseName=${exerciseName}`,
+      {
+        headers: { "Content-Type": "application/json" },
+        method: "GET",
+      },
+    );
+    const data = await response.json();
+    if (response.ok) {
+      console.log("Success " + data);
+      return data;
+    } else {
+      console.log("error" + data);
+    }
+  };
+
   const getExerciseNames = async () => {
     const response = await fetch("http://localhost:5117/getExerciseNames", {
       headers: { "Contet-Type": "application/json" },
@@ -111,6 +153,7 @@ function LogWorkout() {
       setExercises(data);
     }
   };
+
   useEffect(() => {
     getExerciseNames();
   }, []);
@@ -120,13 +163,6 @@ function LogWorkout() {
     repIteration: Number,
     exerciseIteration: string,
   ) => {
-    console.log(
-      "Name",
-      exerciseIteration,
-      " Weight: ",
-      weightIteration + "Rep: ",
-      repIteration,
-    );
     const response = await fetch("http://localhost:5117/addSet", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
@@ -139,12 +175,40 @@ function LogWorkout() {
     });
     console.log(response.status, response.statusText);
     const data = await response.json();
-    console.log(data.status);
     if (response.status == 201) {
       console.log("Success logging\n", data);
     } else {
       console.log("Error", response.body);
     }
+  };
+
+  const updateSetsSQL = async (
+    weightIteration,
+    repIteration,
+    exerciseIteration: string,
+  ) => {
+    const sets2Modify = [];
+    for (let i = 0; i < weight.current.length; i++) {
+      sets2Modify.push({
+        Exercise: { Name: wsetExercises[i] },
+        Weight: weight.current[i],
+        Reps: reps.current[i],
+      });
+    }
+    const response = await fetch(
+      `http://localhost:5117/updateSets?totalSets=${reps.current.length}`,
+      {
+        headers: { "Content-Type": "application/json" },
+        method: "PUT",
+        body: JSON.stringify([
+          {
+            Exercise: {},
+            Weight: weight.current[weightIteration],
+            Reps: reps.current[repIteration],
+          },
+        ]),
+      },
+    );
   };
   //------------- APP BUILD ------------
   return (
@@ -221,7 +285,7 @@ function LogWorkout() {
                         }}
                         onSubmit={(e) => {
                           e.preventDefault();
-                          setFocusInput(filteredList[0]);
+                          setFocusInput(e.target.value);
                           console.log("Fil");
                           console.log("Hi");
                         }}
@@ -262,7 +326,7 @@ function LogWorkout() {
                       <form
                         onSubmit={(e) => {
                           e.preventDefault();
-                          setExerciseInput(filteredExercises[0]);
+                          setExerciseInput(e.target.value);
                         }}
                       >
                         <ComboboxInput
@@ -287,7 +351,6 @@ function LogWorkout() {
                             });
                             setFilteredExercises(filtered);
                           }}
-                          onSubmit={() => {}}
                         ></ComboboxInput>
                       </form>
                       <ComboboxContent className="">
@@ -366,11 +429,21 @@ function LogWorkout() {
                         Add Set?
                       </Button>
                       <Button
+                        type={"button"}
                         size="xs"
                         className="bg-primary rounded-full mr-14 mt-2"
-                        onClick={() => {
-                          for (let i = 0; i < reps.current.length; i++) {
-                            addSetSQL(
+                        onClick={async () => {
+                          for (let i = 1; i < reps.current.length; i++) {
+                            console.log("Exercise Exists");
+                            const exists = await exerciseExists(
+                              wsetExercises.current[i],
+                            );
+                            if (!exists) {
+                              addExerciseSQL();
+                            }
+                            console.log("Add Set");
+
+                            await addSetSQL(
                               weight.current[i],
                               reps.current[i],
                               wsetExercises.current[i],

@@ -1,4 +1,5 @@
 using System.Data.Common;
+using Microsoft.AspNetCore.Mvc;
 using WorkoutTrackerAPI;
 using WorkoutTrackerAPI.models;
 using WorkoutTrackerAPI.repositories;
@@ -41,32 +42,45 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-
-
-app.MapPost("/addExercise", async(Exercises exercise, ExercisesRepository repo) =>
+//API Routes
 {
-    await repo.addExercise(exercise);
-    return Results.Created($"/exercises/{exercise.Id}",exercise);
-});
-app.MapGet("/getExercises", async( ExercisesRepository repo, int? id) =>
+    app.MapPost("/addExercise", async (Exercises exercise, ExercisesRepository repo) =>
+    {
+        await repo.addExercise(exercise);
+        return Results.Created($"/exercises/{exercise.Id}", exercise);
+    });
+    app.MapGet("/getExercises", async (ExercisesRepository repo, int? id) =>
+    {
+
+        var exercises = await repo.getExercises(id);
+        return Results.Ok(exercises);
+    });
+
+    app.MapGet("/getExerciseNames", async (ExercisesRepository repo) =>
+    {
+
+        var exercises = await repo.getExerciseNames();
+        return Results.Ok(exercises);
+    });
+
+    app.MapPost("/addSet", async (WSets set, SetsRepository repo) =>
+    {
+        await repo.addSet(set);
+        return Results.Created($"/sets/{set.Id}", set);
+    });
+
+    app.MapPut("/updateSet", async (List<WSets> sets, [FromQuery] int? totalSets, SetsRepository repo) =>
+    {
+        await repo.updateSet(sets, totalSets);
+        return Results.NoContent();
+    });
+
+    app.MapGet("/exerciseExists", async (ExercisesRepository repo, [FromQuery] string exerciseName) =>
 {
-    
-     var exercises = await repo.getExercises(id);
-    return Results.Ok(exercises);
+    var exists = await repo.exerciseExists(exerciseName);
+    return Results.Ok(exists);
 });
 
-app.MapGet("/getExerciseNames", async( ExercisesRepository repo) =>
-{
-    
-     var exercises = await repo.getExerciseNames();
-    return Results.Ok(exercises);
-});
-
-app.MapPost("/addSet", async(WSets set, SetsRepository repo) =>
-{
-    await repo.addSet(set);
-    return Results.Created($"/sets/{set.Id}",set);
-});
-
+}
 app.Run();
 
