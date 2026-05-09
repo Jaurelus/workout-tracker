@@ -270,7 +270,7 @@
 .dark {
   --background: #212121;
   --foreground: #fafafa;
-  --card: oklch(0.218 0.008 223.9);
+  --card: #191919;
   --card-foreground: oklch(0.987 0.002 197.1);
   --popover: oklch(0.218 0.008 223.9);
   --popover-foreground: oklch(0.987 0.002 197.1);

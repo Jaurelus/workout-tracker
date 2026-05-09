@@ -69,19 +69,27 @@ function LogWorkout() {
   const [vis, setVis] = useState(false);
   const [setRow, addSetRow] = useState([{ key: 1 }]);
   const [exerciseRow, addExerciseRow] = useState([{ key: 1 }]);
+  const exerciseRows = useRef([{ key: 1, sets: 1 }]);
+
+  const setRows = useRef([[{ key: 1 }]]);
   const [focusInput, setFocusInput] = useState("");
-  const [exerciseInput, setExerciseInput] = useState("");
+  const exerciseInputs = useRef({});
 
   const [exercises, setExercises] = useState([]);
   const [filteredList, setFilteredList] = useState([]);
   const [filteredExercises, setFilteredExercises] = useState([]);
-  const weight = useRef([]);
-  const reps = useRef([]);
+  const weight = useRef<string[][]>([[], []]);
+  const reps = useRef<string[][]>([[], []]);
   const wsetExercises = useRef([]);
   const [addExerciseVis, setAddExerciseVis] = useState(false);
+  const [logDisabled, setlogDisabled] = useState(false);
+
   const [existVariable, setexistVariable] = useState("");
 
   const [eName, setEName] = useState("");
+  const [, forceUpdate] = useState(0);
+  const [anyEmpty, setAnyEmpty] = useState(true);
+  const [latestWorkout, setLatestWorkout] = useState();
 
   const foci = [
     "Push (Chest, Tricep, Shoulders",
@@ -97,11 +105,29 @@ function LogWorkout() {
     "Abs",
   ];
 
-  const addSet = () => {
-    addSetRow((prev) => [...prev, { key: prev.length + 1 }]);
+  const checkAnyEmpty = () => {
+    setTimeout(() => {
+      const empty = [...document.querySelectorAll(".infoInput")]
+        .filter((input) => !(input as HTMLInputElement).disabled)
+        .some((input) => input.value?.trim() === "");
+      setAnyEmpty(empty);
+      if (empty) {
+        console.log(
+          [...document.querySelectorAll(".infoInput")]
+            .filter((input) => !(input as HTMLInputElement).disabled)
+            .filter((input) => input.value?.trim() === ""),
+        );
+      }
+    }, 0);
+  };
+  const addSet = (index, setNum) => {
+    let curr = setRows.current[index - 1];
+    setRows.current[index - 1] = [...curr, { key: setNum + 1 }];
+    forceUpdate((prev) => prev + 1);
   };
 
   const addExercise = () => {
+    setRows.current.push([{ key: 1 }]);
     addExerciseRow((prev) => [...prev, { key: prev.length + 1 }]);
   };
   //------------- API CALL -------------
@@ -146,7 +172,7 @@ function LogWorkout() {
 
   const getExerciseNames = async () => {
     const response = await fetch("http://localhost:5117/getExerciseNames", {
-      headers: { "Contet-Type": "application/json" },
+      headers: { "Content-Type": "application/json" },
     });
     const data = await response.json();
     if (response.ok) {
@@ -162,6 +188,7 @@ function LogWorkout() {
     weightIteration: Number,
     repIteration: Number,
     exerciseIteration: string,
+    workoutID: Number,
   ) => {
     const response = await fetch("http://localhost:5117/addSet", {
       headers: { "Content-Type": "application/json" },
@@ -171,44 +198,45 @@ function LogWorkout() {
         name: exerciseIteration,
         reps: repIteration,
         weight: weightIteration,
+        wID: workoutID,
       }),
     });
-    console.log(response.status, response.statusText);
     const data = await response.json();
     if (response.status == 201) {
-      console.log("Success logging\n", data);
+      console.log("Success logging SET SQL\n", data);
     } else {
-      console.log("Error", response.body);
+      console.log("Error logging set", data);
     }
   };
 
-  const updateSetsSQL = async (
-    weightIteration,
-    repIteration,
-    exerciseIteration: string,
-  ) => {
-    const sets2Modify = [];
-    for (let i = 0; i < weight.current.length; i++) {
-      sets2Modify.push({
-        Exercise: { Name: wsetExercises[i] },
-        Weight: weight.current[i],
-        Reps: reps.current[i],
-      });
+  const addWorkoutSQL = async () => {
+    const response = await fetch("http://localhost:5117/addWorkout", {
+      headers: { "Content-Type": "application/json" },
+      method: "POST",
+      body: JSON.stringify({
+        Date: date,
+        Focus: focusInput,
+      }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      console.log("Successful workout log ");
+      console.log(data);
+    } else console.log("Error " + data);
+  };
+
+  const getLatestWorkoutSQL = async () => {
+    const response = await fetch("http://localhost:5117/getLatestWorkout", {
+      headers: { "Content-Type": "application/json" },
+      method: "GET",
+    });
+    const data = await response.json();
+    if (response.ok) {
+      console.log("Latest Workout", data);
+      setLatestWorkout(data);
+    } else {
+      console.log(data);
     }
-    const response = await fetch(
-      `http://localhost:5117/updateSets?totalSets=${reps.current.length}`,
-      {
-        headers: { "Content-Type": "application/json" },
-        method: "PUT",
-        body: JSON.stringify([
-          {
-            Exercise: {},
-            Weight: weight.current[weightIteration],
-            Reps: reps.current[repIteration],
-          },
-        ]),
-      },
-    );
   };
   //------------- APP BUILD ------------
   return (
@@ -223,10 +251,11 @@ function LogWorkout() {
           <div className="absolute right-3">
             <ModeToggle />
           </div>
+
           <Card className="w-[75%] mt-5 pb-12">
             <CardHeader></CardHeader>
             <CardContent className="w-full">
-              {/* Date*/}
+              {/*----------------  Date ----------------*/}
               <Field>
                 <FieldLabel>Date</FieldLabel>
                 <Popover>
@@ -253,7 +282,7 @@ function LogWorkout() {
                   </PopoverContent>
                 </Popover>
               </Field>
-              {/* Focus */}
+              {/* ---------------- Focus ----------------*/}
               <Field className="w-full mt-3">
                 <FieldLabel className="">Focus</FieldLabel>
                 <div className="gap-0 w-full">
@@ -266,7 +295,7 @@ function LogWorkout() {
                     >
                       <ComboboxInput
                         id="focuss"
-                        className="border-primary"
+                        className="border-primary infoInput"
                         showTrigger={false}
                         value={focusInput || undefined}
                         onInput={(e) => {
@@ -282,6 +311,7 @@ function LogWorkout() {
                           setFilteredList(filtered);
 
                           console.log(filtered + "\n");
+                          checkAnyEmpty();
                         }}
                         onSubmit={(e) => {
                           e.preventDefault();
@@ -302,6 +332,7 @@ function LogWorkout() {
                           <ComboboxItem
                             onClick={() => {
                               setFocusInput(item);
+                              checkAnyEmpty();
                             }}
                             className=""
                             key={item}
@@ -317,53 +348,71 @@ function LogWorkout() {
               </Field>
               <Separator className="my-5"></Separator>
               <h1 className="my-5">Exercises</h1>
-              {/* Exercise 1*/}
+              {/*---------------- Exercises ---------------- */}
               {exerciseRow.map((exercise) => (
-                <Field key={exercise.key} className="flex-row w-full mb-5">
-                  <div className="flex-col w-[75%]">
+                <Field key={exercise.key} className="flex-row w-full mb-14">
+                  <div className="flex-col w-[75%] ">
                     <FieldLabel className="mb-2">Exercise Name</FieldLabel>
-                    <Combobox items={exercises || []}>
+                    <Combobox
+                      items={
+                        filteredExercises.length > 0
+                          ? filteredExercises
+                          : exercises
+                      }
+                    >
                       <form
                         onSubmit={(e) => {
                           e.preventDefault();
-                          setExerciseInput(e.target.value);
+                          exerciseInputs.current[exercise.key] = e.target.value;
                         }}
                       >
                         <ComboboxInput
-                          value={exerciseInput || undefined}
+                          value={
+                            exerciseInputs.current[exercise.key] || undefined
+                          }
                           onBlur={(e) => {
                             wsetExercises.current[exercise.key] =
                               e.target.value;
                           }}
-                          className="border-primary"
+                          className="border-primary infoInput"
                           showTrigger={false}
                           onInput={(e) => {
                             let str = e.target.value;
-                            setExerciseInput(str);
-                            let filtered = exercises.filter((exercise) => {
-                              if (
-                                exercise
-                                  .toLowerCase()
-                                  .includes(str.toLowerCase())
-                              )
-                                console.log(exercise);
-                              return exercise;
-                            });
+                            exerciseInputs.current[exercise.key] =
+                              e.target.value;
+                            exerciseInputs.current[exercise.key] = str;
+                            let filtered = exercises.filter((exercise) =>
+                              exercise
+                                .toLowerCase()
+                                .includes(str.toLowerCase()),
+                            );
+
                             setFilteredExercises(filtered);
+                            checkAnyEmpty();
                           }}
                         ></ComboboxInput>
                       </form>
                       <ComboboxContent className="">
                         <ComboboxEmpty>
                           <ComboboxList>
-                            <ComboboxItem>{exerciseInput}</ComboboxItem>
+                            <ComboboxItem
+                              onSelect={(e) => {
+                                console.log(e);
+                                wsetExercises.current[exercise.key] =
+                                  e.target.value;
+                              }}
+                            >
+                              {exerciseInputs.current[exercise.key]}
+                            </ComboboxItem>
                           </ComboboxList>
                         </ComboboxEmpty>
                         <ComboboxList className=" [&_svg]:text-secondary">
                           {(item) => (
                             <ComboboxItem
-                              onClick={() => {
-                                setExerciseInput(item);
+                              onClick={(e) => {
+                                exerciseInputs.current[exercise.key] = item;
+                                forceUpdate((prev) => prev + 1);
+                                checkAnyEmpty();
                               }}
                               className=""
                               key={item}
@@ -376,64 +425,76 @@ function LogWorkout() {
                       </ComboboxContent>
                     </Combobox>
                   </div>
-                  {/* Set Info */}
-                  <div className="flex-row">
-                    {setRow.map((set) => (
-                      <div
-                        key={set.key}
-                        className="flex-row flex justify-between px-12 w-full "
-                      >
-                        <div className="relative w-1/4 flex-col flex">
-                          <FieldLabel className="mb-2 justify-center items-center">
-                            Set
-                          </FieldLabel>
-                          <Input
-                            size={2}
-                            disabled={true}
-                            placeholder={set.key.toString()}
-                            className="w-8"
-                          ></Input>
+                  {/* ---------------- Set Info ---------------- */}
+                  <div className="flex-col">
+                    {setRows.current[exercise.key - 1].map((chunk) => (
+                      <div className="flex-col flex" key={chunk.key}>
+                        <div
+                          key={chunk.key}
+                          className="flex-row flex justify-between px-12 w-full "
+                        >
+                          <div className="relative w-1/4 flex-col flex">
+                            <FieldLabel className="mb-2 justify-center items-center">
+                              Set
+                            </FieldLabel>
+                            <Input
+                              size={2}
+                              disabled={true}
+                              placeholder={chunk.key.toString()}
+                              className="w-8 infoInput"
+                            ></Input>
 
-                          <div className="absolute -bottom-8 ml-auto mr-auto -left-6"></div>
-                          <div id="dynamicSetAdd"></div>
+                            <div className="absolute -bottom-8 ml-auto mr-auto -left-6"></div>
+                            <div id="dynamicSetAdd"></div>
+                          </div>
+                          <div className="flex-col flex">
+                            <FieldLabel className="mb-2">Weight</FieldLabel>
+                            <Input
+                              placeholder=""
+                              className="w-16 infoInput"
+                              onInput={(e) => {
+                                weight.current[chunk.key][exercise.key] =
+                                  e.target.value;
+                                checkAnyEmpty();
+                              }}
+                            ></Input>
+                          </div>
+                          <div className="flex-col flex">
+                            <FieldLabel className="mb-2">Reps</FieldLabel>
+                            <Input
+                              className="w-12 infoInput"
+                              onInput={(e) => {
+                                reps.current[chunk.key][exercise.key] =
+                                  e.target.value;
+                                checkAnyEmpty();
+                              }}
+                            ></Input>
+                          </div>
                         </div>
-                        <div className="">
-                          <FieldLabel className="mb-2">Weight</FieldLabel>
-                          <Input
-                            placeholder=""
-                            className="w-16"
-                            onInput={(e) => {
-                              weight.current[exercise.key] = e.target.value;
+
+                        <div className="flex justify-between">
+                          <Button
+                            variant="ghost"
+                            className="hover:bg-transparent! flex ml-5"
+                            onClick={() => {
+                              addSet(exercise.key, chunk.key);
+                              setlogDisabled(false);
                             }}
-                          ></Input>
-                        </div>
-                        <div className="">
-                          <FieldLabel className="mb-2">Reps</FieldLabel>
-                          <Input
-                            className="w-12"
-                            onInput={(e) => {
-                              reps.current[exercise.key] = e.target.value;
-                            }}
-                          ></Input>
+                          >
+                            Add Set?
+                          </Button>
                         </div>
                       </div>
                     ))}
-                    <div className="flex justify-between">
-                      <Button
-                        variant="ghost"
-                        className="hover:bg-transparent! flex ml-5"
-                        onClick={() => {
-                          addSet();
-                        }}
-                      >
-                        Add Set?
-                      </Button>
-                      <Button
-                        type={"button"}
-                        size="xs"
-                        className="bg-primary rounded-full mr-14 mt-2"
-                        onClick={async () => {
-                          for (let i = 1; i < reps.current.length; i++) {
+                    <Button
+                      type={"button"}
+                      size="xs"
+                      className="bg-primary rounded-full mr-14 mt-2"
+                      onClick={async () => {
+                        setAddExerciseVis(true);
+
+                        for (let i = 1; i < reps.current.length; i++) {
+                          for (let j = 0; j < reps.current[i].length; j++) {
                             console.log("Exercise Exists");
                             const exists = await exerciseExists(
                               wsetExercises.current[i],
@@ -442,39 +503,52 @@ function LogWorkout() {
                               addExerciseSQL();
                             }
                             console.log("Add Set");
-
-                            await addSetSQL(
-                              weight.current[i],
-                              reps.current[i],
-                              wsetExercises.current[i],
-                            );
                           }
-                          setAddExerciseVis(true);
-                        }}
-                      >
-                        <Check color="white" />
-                      </Button>
-                    </div>
+                        }
+                      }}
+                    >
+                      <Check color="white" />
+                    </Button>
                   </div>
                 </Field>
               ))}
-              {addExerciseVis && (
-                <Button
-                  variant="ghost"
-                  className="hover:bg-transparent! "
-                  onClick={() => {
-                    addExercise();
-                    setAddExerciseVis(false);
-                  }}
-                >
-                  Add Exercise?
-                </Button>
-              )}
+              <div>
+                {addExerciseVis && (
+                  <Button
+                    variant="ghost"
+                    className="hover:bg-transparent! "
+                    onClick={() => {
+                      addExercise();
+                      setAddExerciseVis(false);
+                    }}
+                  >
+                    Add Exercise?
+                  </Button>
+                )}
+              </div>
             </CardContent>
             <CardFooter className="justify-center mt-5">
               <Button
                 className="text-white w-full"
-                disabled={addExerciseVis ? false : true}
+                disabled={anyEmpty}
+                onClick={async () => {
+                  //FIX FOR ITERATION
+                  await addWorkoutSQL();
+                  await getLatestWorkoutSQL();
+                  forceUpdate((prev) => prev + 1);
+                  for (let i = 0; i < reps.current.length; i++) {
+                    for (let j = 0; j < reps.current[i].length; j++) {
+                      if (latestWorkout != null) {
+                        addSetSQL(
+                          Number(weight.current[i][j]),
+                          Number(reps.current[i][j]),
+                          exerciseInputs.current[i],
+                          latestWorkout?.id + 1,
+                        );
+                      }
+                    }
+                  }
+                }}
               >
                 Log Workout
               </Button>

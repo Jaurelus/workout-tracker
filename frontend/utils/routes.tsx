@@ -4,6 +4,7 @@ import App from "../src/App";
 import Appp from "../src/pages/addExercise";
 import LogWorkout from "@/pages/logWorkout";
 import ViewPast from "@/pages/viewPast";
+import WorkoutOverview from "@/pages/workoutOverview";
 
 const AppRoutes: React.FC = () => (
   <Routes>
@@ -11,6 +12,7 @@ const AppRoutes: React.FC = () => (
     <Route path="/addExercise" element={<Appp />} />
     <Route path="/logWorkout" element={<LogWorkout />} />
     <Route path="/pastWorkouts" element={<ViewPast />} />
+    <Route path="/pastWorkouts/workout/:id" element={<WorkoutOverview />} />
   </Routes>
 );
 
