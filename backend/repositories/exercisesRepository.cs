@@ -36,7 +36,7 @@ namespace WorkoutTrackerAPI.repositories
             using var connection = _db.CreateConnection();
             if (id != null)
             {
-                var row = await connection.QueryFirstOrDefaultAsync(@"SELECT * FROM Exercises WHERE eID = @id");
+                var row = await connection.QueryFirstOrDefaultAsync(@"SELECT * FROM Exercises WHERE eID = @id", new { id = id });
                 return new List<Exercises>
                 {
                     new Exercises
@@ -95,7 +95,21 @@ namespace WorkoutTrackerAPI.repositories
                 return false;
             }
         }
+
+        public async Task<int> getTotalExercisesForWorkout(int id)
+        {
+            var connection = _db.CreateConnection();
+            var sql = @"SELECT COUNT(DISTINCT exerciseID) FROM WSets
+                        WHERE workoutID = @WID
+                        ";
+
+            var count = await connection.ExecuteScalarAsync<int>(sql, new { WID = id });
+            Console.WriteLine(count);
+            return count;
+
+        }
     }
+
 
 
 }
