@@ -75,9 +75,16 @@ app.UseHttpsRedirection();
         {
             var total = await repo.getTotalExercisesForWorkout(wID);
             return Results.Ok(total);
-
-
-
+        });
+        app.MapPut("/updateExercise", async (ExercisesRepository repo, Exercises exercise) =>
+        {
+            await repo.updateExercise(exercise);
+            return Results.Ok();
+        });
+        app.MapDelete("/delteExercise", async (ExercisesRepository repo, int eid) =>
+        {
+            await repo.deleteExercise(eid);
+            return Results.Ok();
         });
     }
     // Set Routes

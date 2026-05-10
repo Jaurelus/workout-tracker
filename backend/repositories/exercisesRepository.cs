@@ -2,6 +2,7 @@ using Dapper;
 using WorkoutTrackerAPI.models;
 using System.Text.Json;
 using Microsoft.VisualBasic;
+using Mysqlx.Resultset;
 
 namespace WorkoutTrackerAPI.repositories
 {
@@ -104,9 +105,36 @@ namespace WorkoutTrackerAPI.repositories
                         ";
 
             var count = await connection.ExecuteScalarAsync<int>(sql, new { WID = id });
-            Console.WriteLine(count);
             return count;
 
+        }
+
+        public async Task<int> updateExercise(Exercises exercise)
+        {
+            var connection = _db.CreateConnection();
+            var sql = @"UPDATE TABLE Exercises
+                         SET eName = @Name,primaryMuscle = @Primary,secondaryMuscle = @Secondary, tips = @Tips
+                         WHERE eID = @EID";
+            var row = await connection.ExecuteAsync(sql, new
+            {
+                EID = exercise.Id,
+                Name = exercise.Name,
+                Primary = exercise.Primary,
+                Secondary = exercise.Secondary,
+                Tips = exercise.Tips
+            });
+            return row;
+        }
+
+        public async Task deleteExercise(int eid)
+        {
+            var connection = _db.CreateConnection();
+            var sql = @"DELETE FROM Exercises
+                        where eID=@EID";
+            await connection.ExecuteAsync(sql, new
+            {
+                EID = eid
+            });
         }
     }
 

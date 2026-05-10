@@ -105,11 +105,12 @@ namespace WorkoutTrackerAPI.models
 
         {
             var connection = _db.CreateConnection();
-            var sql = @"SELECT * w.sID, w.Reps, w.weight, w.workoutID
-                        e.eID, e.eName, e.PrimaryMuscles, e.secondaryMuscles, e.tips
+            var sql = @"SELECT w.sID, w.Reps, w.Weight, w.workoutID,
+                        e.eID as exerciseID, e.eName, e.primaryMuscle, e.secondaryMuscle, e.tips
                         FROM WSets w
-                       WHERE workoutID = @WID 
-                       JOIN Exercises e ON w.exerciseID=e.eID";
+                       JOIN Exercises e ON w.exerciseID=e.eID
+                        WHERE workoutID = @WID
+                        ORDER BY exerciseID";
             var rows = await connection.QueryAsync(sql, new
             {
                 WID = wid
@@ -120,7 +121,7 @@ namespace WorkoutTrackerAPI.models
                 Exercises = new Exercises
                 {
                     Id = row.exerciseID,
-                    Name = row.eMame,
+                    Name = row.eName,
                     Primary = JsonSerializer.Deserialize<List<string>>(row.primaryMuscle),
                     Secondary = JsonSerializer.Deserialize<List<string>>(row.secondaryMuscle),
                     Tips = JsonSerializer.Deserialize<List<string>>(row.tips)
@@ -139,7 +140,6 @@ namespace WorkoutTrackerAPI.models
             {
                 WID = wid,
             });
-            Console.WriteLine(count);
             return count;
 
 
