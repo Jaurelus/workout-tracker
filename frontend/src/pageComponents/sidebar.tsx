@@ -16,7 +16,7 @@ function MySidebar() {
     <Sidebar variant="sidebar" className="flex-row flex-1 flex bg-primary">
       <SidebarHeader className="py-8 font-bold text-xl">
         <Link to="/">
-          <h1>Work</h1>
+          <h1>WorkBench</h1>
         </Link>
       </SidebarHeader>
       <SidebarContent className="mt-36 flex">

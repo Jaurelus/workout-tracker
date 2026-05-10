@@ -108,7 +108,7 @@ function ViewPast() {
             workouts.map((workout, index) => (
               <div className="w-3/4 flex min-h-32 my-5 p-5" key={workout.id}>
                 <Card className="w-full h-full flex py-0! pl-3 bg-primary">
-                  <Card className="h-full flex rounded-none bg-[color-mix(in_srgb,var(--primary-foreground)_65%,black)] brightness-65">
+                  <Card className="ml-2 h-full flex rounded-none bg-[color-mix(in_srgb,var(--primary-foreground)_65%,black)] brightness-65">
                     <CardContent className="flex flex-row justify-between">
                       <div className="flex-col gap-3 justify-left text-left">
                         <CardTitle className="text-[color-mix(in_srgb,var(--primary-foreground)_60%,white)] brightness-130">
