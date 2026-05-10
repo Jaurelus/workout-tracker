@@ -1,4 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useState, useRef } from "react";
@@ -20,10 +29,16 @@ function WorkoutOverview() {
   const [sets, setSets] = useState();
   const groupedSets = useRef([]);
   const [, forceUpdate] = useState(0);
-  const [setTotal, setSetTotal] = useState();
-  const [exercisesTotal, setExercisesTotal] = useState();
+  const [setExerciseTotal, setSetExerciseTotal] = useState([]);
+  const [weightExercisesTotal, setWeightExercisesTotal] = useState(0);
 
-  const getTotals = () => {};
+  const getTotals = () => {
+    if (!groupedSets) return;
+    groupedSets.forEach((exercise, index) => {
+      //Add stuff for each column
+      //Push sum to variables
+    });
+  };
   const groupSets = () => {
     if (!sets) return;
 
@@ -92,7 +107,7 @@ function WorkoutOverview() {
     <div className=" bg-background h-screen flex flex-1 justify-center items-center">
       {workout && (
         <div className="h-full flex flex-1 flex-col p-10 gap-5 justify-start">
-          <Card className=" items-start shadow-lg shadow-primary">
+          <Card className=" items-start    min-h-40">
             <CardHeader className="">
               <p className="text-secondary">
                 {new Date(workout.date).toLocaleDateString()}
@@ -106,22 +121,49 @@ function WorkoutOverview() {
               <Badge> sets</Badge>
             </CardContent>
           </Card>
+          <Card className="min-h-100 items-center flex flex-1 w-full shadow-lg shadow-primary mb-3">
+            <CardTitle>Volume Over Time</CardTitle>
+            <ResponsiveContainer className="w-full h-full px-5">
+              <AreaChart
+                width={800}
+                height={300}
+                data={[
+                  { date: "5/7", volume: 3500 },
+                  { date: "5/8", volume: 4000 },
+                  { date: "5/9", volume: 4000 },
+                  { date: "5/10", volume: 4100 },
+                  { date: "5/11", volume: 4200 },
+                  { date: "5/12", volume: 4300 },
+                  { date: "5/13", volume: 4400 },
+                  { date: "5/14", volume: 4500 },
+                ]}
+              >
+                <XAxis dataKey="date" niceTicks="snap125"></XAxis>
+                <YAxis
+                  width="auto"
+                  niceTicks="snap125"
+                  domain={["3000", "5000"]}
+                />
+
+                <Area
+                  className="w-full h-full"
+                  dataKey="volume"
+                  stroke="#d23f2f"
+                  fill="#d23f2f60"
+                ></Area>
+              </AreaChart>
+            </ResponsiveContainer>
+          </Card>
           <div className="flex-row flex flex-1 justify-between gap-5 max-h-32">
-            <Card className="shadow-lg shadow-primary items-center flex-1">
-              Total Volume
-            </Card>
-            <Card className="shadow-lg shadow-primary items-center flex-1">
-              Top Weight
-            </Card>
-            <Card className="shadow-lg shadow-primary items-center flex-1">
-              Most intense exercise
-            </Card>
+            <Card className=" items-center flex-1">Total Volume</Card>
+            <Card className=" items-center flex-1">Top Weight</Card>
+            <Card className=" items-center flex-1">Most intense exercise</Card>
           </div>
           {/* Map exercises */}
           {groupedSets && (
             <div className="gap-5 flex flex-1 flex-col">
               {groupedSets.current.map((group, index) => (
-                <Card className="flex flex-col flex-1">
+                <Card className="flex flex-col flex-1 mb-10">
                   <CardHeader className="justify-between flex-row flex-1">
                     <CardTitle>{group[0].exercises.name}</CardTitle>
                     <div className="flex gap-5">
