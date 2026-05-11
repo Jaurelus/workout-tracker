@@ -11,42 +11,53 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { es } from "date-fns/locale";
+import { Send, SendHorizonal } from "lucide-react";
 import { useState } from "react";
 
-interface AddExerciseModalProp {
+interface EditExerciseModalProp {
   visibility: OnBeforeUnloadEventHandlerNonNull;
   changeVisibility: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedExercise: Record<string, any>;
 }
-function AddExerciseModal({
+function EditExerciseModal({
   visibility,
   changeVisibility,
-}: AddExerciseModalProp) {
-  const [eName, setEName] = useState("");
-  const [ePrimary, setEPrimary] = useState("");
-  const [eSecondary, setESecondary] = useState("");
-  const [eTips, seteTips] = useState("");
+  selectedExercise,
+}: EditExerciseModalProp) {
+  console.log(selectedExercise);
+  const [eName, setEName] = useState(selectedExercise.name);
+  const [ePrimary, setEPrimary] = useState(selectedExercise.primary);
+  const [eSecondary, setESecondary] = useState(selectedExercise.secondary);
+  const [eTips, seteTips] = useState(selectedExercise.tips);
+  const [changes, setChanges] = useState(false);
 
   //-------------- API CALL -----------------
-  const addExercise = async () => {
-    const response = await fetch("http://localhost:5117/addExercise", {
-      headers: { "Content-Type": "application/json" },
-      method: "POST",
-      body: JSON.stringify({
-        name: eName,
-        primary: ePrimary ? ePrimary.split(",") : [ePrimary],
-        secondary: eSecondary ? eSecondary.split(",") : [eSecondary],
-        tips: eTips ? eTips.split("\n") : [eTips],
-      }),
-    });
+  const editExercise = async (eID) => {
+    const response = await fetch(
+      `http://localhost:5117/editExercise?eID=${eID}`,
+      {
+        headers: { "Content-Type": "application/json" },
+        method: "PUT",
+        body: JSON.stringify({
+          id: selectedExercise.id,
+          name: eName,
+          primary: ePrimary ? ePrimary.split(",") : [ePrimary],
+          secondary: eSecondary ? eSecondary.split(",") : [eSecondary],
+          tips: eTips ? eTips.split("\n") : [eTips],
+        }),
+      },
+    );
     const data = await response.json();
-    if (response.status == 201) {
-      console.log("Success\n", data);
+    if (response.ok) {
+      console.log("Success editing exercise", data);
     } else {
-      console.log(response.body);
+      console.log("Error editing exercise please try again");
     }
   };
-
   //--------------- APP BUILD ---------------
+  if (!selectedExercise) return null;
+
   return (
     <AlertDialog open={visibility}>
       <AlertDialogContent>
@@ -60,7 +71,7 @@ function AddExerciseModal({
           >
             X
           </AlertDialogCancel>
-          <AlertDialogTitle className="mt-3">Add an Exercise</AlertDialogTitle>
+          <AlertDialogTitle className="mt-3">Edit an Exercise</AlertDialogTitle>
         </AlertDialogHeader>
 
         {/* Input boxes */}
@@ -71,6 +82,7 @@ function AddExerciseModal({
           <FieldLabel htmlFor="eName">Exercise Name</FieldLabel>
           <Input
             id="eName"
+            value={eName}
             placeholder="Enter the name of the exercise"
             onChange={(e) => {
               setEName(e.target.value);
@@ -83,9 +95,11 @@ function AddExerciseModal({
         <Field>
           <FieldLabel htmlFor="primary">Primary Muscle</FieldLabel>
           <Input
+            value={ePrimary}
             id="primary"
             placeholder="List the primary muscles targeted separated by a comma"
             onChange={(e) => {
+              setChanges(true);
               setEPrimary(e.target.value);
             }}
           />
@@ -96,9 +110,12 @@ function AddExerciseModal({
         <Field>
           <FieldLabel htmlFor="secondary">Secondary Muscle</FieldLabel>
           <Input
+            value={eSecondary}
             id="secondary"
             placeholder="List the secondary muscles targeted separated by a comma"
             onChange={(e) => {
+              setChanges(true);
+
               setESecondary(e.target.value);
             }}
           />
@@ -109,10 +126,13 @@ function AddExerciseModal({
         <Field>
           <FieldLabel htmlFor="tips">Tips</FieldLabel>
           <Textarea
+            value={eTips}
             className="border-primary"
             id="tips"
             placeholder="List any tips, ending each tip by pressing the Enter/Return key"
             onChange={(e) => {
+              setChanges(true);
+
               seteTips(e.target.value);
             }}
           />
@@ -121,11 +141,13 @@ function AddExerciseModal({
         <AlertDialogFooter className="w-3/4 items-center justify-center flex flex-1 ml-auto mr-auto">
           <AlertDialogAction
             size="lg"
-            disabled={eName ? false : true}
+            disabled={!changes}
             className="bg-primary !rounded-lg text-white flex flex-1"
-            onClick={addExercise}
+            onClick={() => {
+              editExercise(selectedExercise.id);
+            }}
           >
-            +
+            <SendHorizonal />
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -133,4 +155,4 @@ function AddExerciseModal({
   );
 }
 
-export default AddExerciseModal;
+export default EditExerciseModal;

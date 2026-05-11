@@ -112,16 +112,16 @@ namespace WorkoutTrackerAPI.repositories
         public async Task<int> updateExercise(Exercises exercise)
         {
             var connection = _db.CreateConnection();
-            var sql = @"UPDATE TABLE Exercises
+            var sql = @"UPDATE Exercises
                          SET eName = @Name,primaryMuscle = @Primary,secondaryMuscle = @Secondary, tips = @Tips
                          WHERE eID = @EID";
             var row = await connection.ExecuteAsync(sql, new
             {
                 EID = exercise.Id,
                 Name = exercise.Name,
-                Primary = exercise.Primary,
-                Secondary = exercise.Secondary,
-                Tips = exercise.Tips
+                Primary = JsonSerializer.Serialize(exercise.Primary),
+                Secondary = JsonSerializer.Serialize(exercise.Secondary),
+                Tips = JsonSerializer.Serialize(exercise.Tips)
             });
             return row;
         }

@@ -30,10 +30,25 @@ import {
 } from "@/components/ui/table";
 import { Link } from "react-router-dom";
 import MySidebar from "@/pageComponents/sidebar";
+import EditExerciseModal from "@/pageComponents/editExerciseModal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 function Appp() {
   const [addModalVis, setAddModalVis] = useState(false);
+  const [addEditVis, setAddEditVis] = useState(false);
+
   const [exercises, setExercises] = useState<any>(null);
+  const [selectedExercise, setSelectedExercise] = useState(null);
 
   //------------- API CALL -------------
   const getExercises = async () => {
@@ -49,7 +64,24 @@ function Appp() {
   };
   useEffect(() => {
     getExercises();
-  });
+  }, []);
+
+  const editExercise = async (id: Number) => {};
+  const deleteExercise = async (id: Number) => {
+    const response = await fetch(
+      `http://localhost:5117/deleteExercise?eid=${id}`,
+      {
+        headers: { "Content-Type": "application/json" },
+        method: "DELETE",
+      },
+    );
+    const data = await response.json();
+    if (response.ok) {
+      console.log("Success deleting", data);
+    } else {
+      console.log("Error deleting exercise", data);
+    }
+  };
 
   //------------- APP BUILD ------------
   return (
@@ -67,31 +99,66 @@ function Appp() {
           <div className="mt-5 w-[75%] flex">
             <Table>
               <TableHeader>
-                <TableHead className="text-center">Exercise Name</TableHead>
-                <TableHead className="text-center">Primary Muscles</TableHead>
-                <TableHead className="text-center">Secondary Muscles</TableHead>
-                <TableHead className="text-center">Tips</TableHead>
+                <TableRow>
+                  <TableHead className="text-center">Exercise Name</TableHead>
+                  <TableHead className="text-center">Primary Muscles</TableHead>
+                  <TableHead className="text-center">
+                    Secondary Muscles
+                  </TableHead>
+                  <TableHead className="text-center">Tips</TableHead>
+                </TableRow>
               </TableHeader>
               {exercises && (
                 <TableBody id="tBody">
                   {exercises.map((exercise, index) => (
-                    <TableRow key={exercise.Id}>
+                    <TableRow key={exercise.id}>
                       <TableCell>{exercise.name}</TableCell>
                       <TableCell>{exercise.primary}</TableCell>
                       <TableCell>{exercise.secondary}</TableCell>
                       <TableCell>{exercise.tips}</TableCell>
-                      <div>
-                        <TableCell>
-                          <Button variant="ghost">
-                            <PencilRuler />
-                          </Button>
-                        </TableCell>
-                        <TableCell>
-                          <Button variant="ghost">
-                            <CircleX />
-                          </Button>
-                        </TableCell>
-                      </div>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          onClick={() => {
+                            setSelectedExercise(exercise);
+
+                            setAddEditVis((prev) => !prev);
+                          }}
+                        >
+                          <PencilRuler />
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost">
+                              <CircleX />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent className=" justify-center ">
+                            <AlertDialogHeader className="">
+                              <AlertDialogTitle className="ml-auto mr-auto">
+                                Are You Sure?
+                              </AlertDialogTitle>
+                            </AlertDialogHeader>
+                            <AlertDialogDescription>
+                              Deleting this exercise cannot be undone
+                            </AlertDialogDescription>
+                            <AlertDialogFooter className="ml-auto mr-auto">
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                className="text-foreground!"
+                                onClick={async () => {
+                                  await deleteExercise(exercise.id);
+                                  await getExercises();
+                                }}
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -112,6 +179,15 @@ function Appp() {
               changeVisibility={setAddModalVis}
             />
             <Button onClick={getExercises}>test</Button>
+          </div>
+          <div>
+            {addEditVis && (
+              <EditExerciseModal
+                visibility={addEditVis}
+                changeVisibility={setAddEditVis}
+                selectedExercise={selectedExercise}
+              />
+            )}
           </div>
         </main>
       </SidebarProvider>
