@@ -35,71 +35,48 @@ namespace WorkoutTrackerAPI.models
 
         }
 
-        public async Task updateSet(List<WSets> set, int? totalSets)
+        public async Task updateSet(WSets set, int? totalSets)
         {
             var connection = _db.CreateConnection();
-            //----- LOG 
-            //find last n rows where n is length or rep count array
-            //check that the new values aare diff from old then add
+
             if (totalSets != null)
             {
-                var sqlSelect = @" SELECT * from WSets
-                    ORDER BY sID DESC
-                    LIMIT @N";
-
-                var res = await connection.QueryAsync(sqlSelect, new
+                var sql = @"UPDATE WSets 
+                           exerciseID= @EID, Reps=@Reps, Weight=@Weight
+                           ORDER BY sID DESC
+                           LIMIT @N";
+                await connection.ExecuteAsync(sql, new
                 {
-                    N = totalSets,
+                    EID = set.Exercises.Id,
+                    Reps = set.reps,
+                    Weight = set.weight,
+                    N = totalSets
                 });
-                //For each row get set ID, then update rows in sets with id
-                int i = 0;
-                foreach (var row in res)
-                {
-                    var sqlUpdate = @"UPDATE WSets
-                                SET exerciseID = @ExerciseID, Reps = @Reps, Weight=@Weight
-                                WHERE sID = @ID";
 
-                    await connection.ExecuteAsync(sqlUpdate, new
-                    {
-                        ID = row.sID,
-                        Weight = set[i].weight,
-                        Reps = set[i].reps,
-                        ExerciseID = set[i].Exercises?.Id
-                    });
-                    i++;
-                }
             }
             //----- VIEW
             //find rows with an = wID, sorted by ID; update
             if (totalSets == null)
             {
-                var sqlSelect1 = @"SELECT * FROM WSets
-                            WHERE workoutID = @wID";
-                var res = await connection.QueryAsync(sqlSelect1, new
+                var sql = @"UPDATE WSets
+                            SET exerciseID= @EID, Reps=@Reps, Weight=@Weight
+                            WHERE workoutID = @WID AND sID= @SID";
+
+
+                await connection.ExecuteAsync(sql, new
                 {
-                    wID = set[0].wID
+                    EID = set.Exercises.Id,
+                    Reps = set.reps,
+                    Weight = set.weight,
+                    WID = set.wID,
+                    SID = set.Id
                 });
-                foreach (var row in res)
-                {
-                    //Update row where sID
-
-                    var sqlResult1 = @"UPDATE WSets
-                                SET exerciseID = @EID, Reps = @Reps, Weight= @Weight
-                                WHERE sID EQUALS @SID";
-                    await connection.ExecuteAsync(sqlResult1, new
-                    {
-                        EID = row.exerciseID,
-                        Reps = row.Reps,
-                        Weight = row.Weight,
-                        SID = row.ID,
-
-                    });
-                }
             }
-
-
-
         }
+
+
+
+
 
         public async Task<IEnumerable<WSets>> getSetByWID(int wid)
 

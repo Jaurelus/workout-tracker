@@ -19,6 +19,10 @@ import { Button } from "./components/ui/button";
 import { Link } from "react-router-dom";
 import { Card } from "./components/ui/card";
 import MySidebar from "./pageComponents/sidebar";
+import Consistency from "./pageComponents/consistency";
+import LastWorkout from "./pageComponents/lastWorkout";
+import Motivation from "./pageComponents/motivation";
+import Chart from "./pageComponents/chart";
 
 function Dashboard() {
   return (
@@ -37,37 +41,21 @@ function Dashboard() {
             {/*Top Row*/}
             <div className="flex flex-row gap-5 w-full justify-center">
               <div className="w-7/12 min-h-96">
-                <Card className="bg-primary flex w-full h-full py-0! pl-3!">
-                  <Card className="bg-primary-foreground  p-2 flex w-full h-full ml-3 rounded-none">
-                    <h1 className="text-2xl text-white">Last Workout</h1>
-                  </Card>
-                </Card>
+                <LastWorkout />
               </div>
 
-              <div className="w-7/12 min-h-96">
-                <Card className="bg-primary flex w-full h-full py-0! pl-3!">
-                  <Card className="bg-primary-foreground  p-2 flex w-full h-full ml-3 rounded-none">
-                    <h1 className="text-2xl text-white">Consistency</h1>
-                  </Card>
-                </Card>
+              <div className="max-w-6/12 min-h-96">
+                <Consistency />
               </div>
             </div>
             {/*Bottom Row*/}
             <div className="flex flex-row gap-5 w-full justify-center">
               <div className="w-7/12 min-h-96">
-                <Card className="bg-primary flex w-full h-full py-0! pl-3!">
-                  <Card className="bg-primary-foreground  p-2 flex w-full h-full ml-3 rounded-none">
-                    <h1 className="text-2xl text-white">Chart</h1>
-                  </Card>
-                </Card>
+                <Chart />
               </div>
 
               <div className="w-7/12 min-h-96">
-                <Card className="bg-primary flex w-full h-full py-0! pl-3!">
-                  <Card className="bg-primary-foreground  p-2 flex w-full h-full ml-3 rounded-none">
-                    <h1 className="text-2xl text-white">Motivation</h1>
-                  </Card>
-                </Card>
+                <Motivation />
               </div>
             </div>
           </div>

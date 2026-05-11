@@ -100,10 +100,10 @@ app.UseHttpsRedirection();
             return Results.Ok(sets);
         });
 
-        app.MapPut("/updateSet", async (List<WSets> sets, [FromQuery] int? totalSets, SetsRepository repo) =>
+        app.MapPut("/updateSet", async (WSets sets, [FromQuery] int? totalSets, SetsRepository repo) =>
         {
             await repo.updateSet(sets, totalSets);
-            return Results.NoContent();
+            return Results.Ok();
         });
         app.MapGet("/getTotalSets", async (SetsRepository repo, [FromQuery] int wID) =>
         {
@@ -134,6 +134,11 @@ app.UseHttpsRedirection();
         {
             var workout = await repo.getLatestWorkout();
             return Results.Ok(workout);
+        });
+        app.MapGet("/getWorkoutsBetween", async (WorkoutsRepository repo, [FromQuery] string weekStart, [FromQuery] string weekEnd) =>
+        {
+            var workouts = await repo.getWeekWorkouts(weekStart, weekEnd);
+            return Results.Ok(workouts);
         });
     }
 

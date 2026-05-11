@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 
 import "../App.css";
 import {
@@ -90,7 +90,7 @@ function LogWorkout() {
   const [, forceUpdate] = useState(0);
   const [anyEmpty, setAnyEmpty] = useState(true);
   const [latestWorkout, setLatestWorkout] = useState();
-
+  const [recentData, setRecentData] = useState();
   const foci = [
     "Push (Chest, Tricep, Shoulders",
     "Pull (Back, Bicep)",
@@ -105,18 +105,19 @@ function LogWorkout() {
     "Abs",
   ];
 
-  const checkAnyEmpty = () => {
+  const checkAnyEmpty = (int?) => {
     setTimeout(() => {
-      const empty = [...document.querySelectorAll(".infoInput")]
+      let emptySet = [...document.querySelectorAll(".noFocus")]
         .filter((input) => !(input as HTMLInputElement).disabled)
         .some((input) => input.value?.trim() === "");
-      setAnyEmpty(empty);
-      if (empty) {
-        console.log(
-          [...document.querySelectorAll(".infoInput")]
-            .filter((input) => !(input as HTMLInputElement).disabled)
-            .filter((input) => input.value?.trim() === ""),
-        );
+      if (!emptySet) {
+        setAddExerciseVis(true);
+      }
+      let empty = [...document.querySelectorAll(".infoInput")]
+        .filter((input) => !(input as HTMLInputElement).disabled)
+        .some((input) => input.value?.trim() === "");
+      if (!empty) {
+        setAnyEmpty(empty);
       }
     }, 0);
   };
@@ -183,6 +184,24 @@ function LogWorkout() {
   useEffect(() => {
     getExerciseNames();
   }, []);
+  useEffect(() => {
+    if (!recentData) return;
+
+    getLatestWorkoutSQL();
+  }, [recentData]);
+  useEffect(() => {
+    if (!latestWorkout || !recentData) return;
+    for (let i = 0; i < weight.current.length; i++) {
+      for (let j = 0; j < weight.current[i].length; j++) {
+        addSetSQL(
+          Number(weight.current[i][j]),
+          Number(reps.current[i][j]),
+          exerciseInputs.current[i],
+          latestWorkout?.id,
+        );
+      }
+    }
+  }, [latestWorkout]);
 
   const addSetSQL = async (
     weightIteration: Number,
@@ -222,6 +241,7 @@ function LogWorkout() {
     if (response.ok) {
       console.log("Successful workout log ");
       console.log(data);
+      setRecentData(data);
     } else console.log("Error " + data);
   };
 
@@ -374,7 +394,7 @@ function LogWorkout() {
                             wsetExercises.current[exercise.key] =
                               e.target.value;
                           }}
-                          className="border-primary infoInput"
+                          className="border-primary  infoInput"
                           showTrigger={false}
                           onInput={(e) => {
                             let str = e.target.value;
@@ -441,7 +461,7 @@ function LogWorkout() {
                               size={2}
                               disabled={true}
                               placeholder={chunk.key.toString()}
-                              className="w-8 infoInput"
+                              className="w-8 infoInput noFocus"
                             ></Input>
 
                             <div className="absolute -bottom-8 ml-auto mr-auto -left-6"></div>
@@ -451,9 +471,9 @@ function LogWorkout() {
                             <FieldLabel className="mb-2">Weight</FieldLabel>
                             <Input
                               placeholder=""
-                              className="w-16 infoInput"
+                              className="w-16 infoInput noFocus"
                               onInput={(e) => {
-                                weight.current[chunk.key][exercise.key] =
+                                weight.current[exercise.key][chunk.key] =
                                   e.target.value;
                                 checkAnyEmpty();
                               }}
@@ -462,9 +482,9 @@ function LogWorkout() {
                           <div className="flex-col flex">
                             <FieldLabel className="mb-2">Reps</FieldLabel>
                             <Input
-                              className="w-12 infoInput"
+                              className="w-12 infoInput noFocus"
                               onInput={(e) => {
-                                reps.current[chunk.key][exercise.key] =
+                                reps.current[exercise.key][chunk.key] =
                                   e.target.value;
                                 checkAnyEmpty();
                               }}
@@ -492,19 +512,6 @@ function LogWorkout() {
                       className="bg-primary rounded-full mr-14 mt-2"
                       onClick={async () => {
                         setAddExerciseVis(true);
-
-                        for (let i = 1; i < reps.current.length; i++) {
-                          for (let j = 0; j < reps.current[i].length; j++) {
-                            console.log("Exercise Exists");
-                            const exists = await exerciseExists(
-                              wsetExercises.current[i],
-                            );
-                            if (!exists) {
-                              addExerciseSQL();
-                            }
-                            console.log("Add Set");
-                          }
-                        }
                       }}
                     >
                       <Check color="white" />
@@ -530,24 +537,9 @@ function LogWorkout() {
             <CardFooter className="justify-center mt-5">
               <Button
                 className="text-white w-full"
-                disabled={anyEmpty}
+                disabled={anyEmpty || focusInput.trim() === ""}
                 onClick={async () => {
-                  //FIX FOR ITERATION
                   await addWorkoutSQL();
-                  await getLatestWorkoutSQL();
-                  forceUpdate((prev) => prev + 1);
-                  for (let i = 0; i < reps.current.length; i++) {
-                    for (let j = 0; j < reps.current[i].length; j++) {
-                      if (latestWorkout != null) {
-                        addSetSQL(
-                          Number(weight.current[i][j]),
-                          Number(reps.current[i][j]),
-                          exerciseInputs.current[i],
-                          latestWorkout?.id + 1,
-                        );
-                      }
-                    }
-                  }
                 }}
               >
                 Log Workout

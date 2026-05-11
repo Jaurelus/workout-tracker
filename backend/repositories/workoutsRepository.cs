@@ -70,6 +70,24 @@ namespace WorkoutTrackerAPI
 
         }
 
+        public async Task<IEnumerable<Workouts>> getWeekWorkouts(string weekStart, string weekEnd)
+        {
+            var connection = _db.CreateConnection();
+
+            var sql = @"SELECT * FROM Workouts
+                        WHERE wDate BETWEEN @WS and @WE";
+            var rows = await connection.QueryAsync(sql, new
+            {
+                WS = weekStart,
+                WE = weekEnd
+            });
+            return rows.Select((row) => new Workouts
+            {
+                Id = row.wID,
+                Date = row.wDate,
+                Focus = row.focus
+            });
+        }
     }
 
 }
