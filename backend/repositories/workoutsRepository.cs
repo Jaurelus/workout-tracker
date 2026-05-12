@@ -88,6 +88,15 @@ namespace WorkoutTrackerAPI
                 Focus = row.focus
             });
         }
+
+        public async Task editWorkout(Workouts workout)
+        {
+            var connection = _db.CreateConnection();
+            var sql = @"UPDATE Workouts
+                        SET wDate = @DATE, focus =@FOCUS
+                        WHERE wID = @WID";
+            await connection.ExecuteAsync(sql, new { DATE = workout.Date, FOCUS = workout.Focus, WID = workout.Id });
+        }
     }
 
 }

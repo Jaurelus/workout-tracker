@@ -73,7 +73,7 @@ function LogWorkout() {
 
   const setRows = useRef([[{ key: 1 }]]);
   const [focusInput, setFocusInput] = useState("");
-  const exerciseInputs = useRef({});
+  const exerciseInputs = useRef([]);
 
   const [exercises, setExercises] = useState([]);
   const [filteredList, setFilteredList] = useState([]);
@@ -91,6 +91,7 @@ function LogWorkout() {
   const [anyEmpty, setAnyEmpty] = useState(true);
   const [latestWorkout, setLatestWorkout] = useState();
   const [recentData, setRecentData] = useState();
+
   const foci = [
     "Push (Chest, Tricep, Shoulders",
     "Pull (Back, Bicep)",
@@ -116,24 +117,37 @@ function LogWorkout() {
       let empty = [...document.querySelectorAll(".infoInput")]
         .filter((input) => !(input as HTMLInputElement).disabled)
         .some((input) => input.value?.trim() === "");
-      if (!empty) {
-        setAnyEmpty(empty);
-      }
+      setAnyEmpty(empty);
     }, 0);
   };
   const addSet = (index, setNum) => {
     let curr = setRows.current[index - 1];
     setRows.current[index - 1] = [...curr, { key: setNum + 1 }];
+    if (!weight.current[index]) weight.current[index] = [];
+    if (!reps.current[index]) reps.current[index] = [];
+    weight.current[index][setNum + 1] = "";
+    reps.current[index][setNum + 1] = "";
     forceUpdate((prev) => prev + 1);
   };
 
   const addExercise = () => {
     setRows.current.push([{ key: 1 }]);
+    weight.current.push([]);
+
     addExerciseRow((prev) => [...prev, { key: prev.length + 1 }]);
+  };
+
+  const handleNonExistingExercise = async () => {
+    for (let i = 1; i < exerciseInputs.current.length; i++) {
+      if ((await exerciseExists(exerciseInputs.current[i])) == 0) {
+        addExerciseSQL(exerciseInputs.current[i]);
+      }
+    }
+    await addWorkoutSQL();
   };
   //------------- API CALL -------------
 
-  const addExerciseSQL = async () => {
+  const addExerciseSQL = async (eName) => {
     if (!eName) {
       return;
     }
@@ -145,7 +159,7 @@ function LogWorkout() {
       }),
     });
     const data = await response.json();
-    if (response.status == 201) {
+    if (response.ok) {
       console.log(" Add SQL Success\n", data);
     } else {
       console.log(response.body);
@@ -153,7 +167,6 @@ function LogWorkout() {
   };
 
   const exerciseExists = async (exerciseName: string) => {
-    console.log("Exercise Name: " + exerciseName);
     setEName(exerciseName);
     const response = await fetch(
       `http://localhost:5117/exerciseExists?exerciseName=${exerciseName}`,
@@ -164,7 +177,6 @@ function LogWorkout() {
     );
     const data = await response.json();
     if (response.ok) {
-      console.log("Success " + data);
       return data;
     } else {
       console.log("error" + data);
@@ -191,7 +203,7 @@ function LogWorkout() {
   }, [recentData]);
   useEffect(() => {
     if (!latestWorkout || !recentData) return;
-    for (let i = 0; i < weight.current.length; i++) {
+    for (let i = 1; i < weight.current.length; i++) {
       for (let j = 0; j < weight.current[i].length; j++) {
         addSetSQL(
           Number(weight.current[i][j]),
@@ -451,7 +463,7 @@ function LogWorkout() {
                       <div className="flex-col flex" key={chunk.key}>
                         <div
                           key={chunk.key}
-                          className="flex-row flex justify-between px-12 w-full "
+                          className="flex-row flex justify-between px-12 w-full mb-3"
                         >
                           <div className="relative w-1/4 flex-col flex">
                             <FieldLabel className="mb-2 justify-center items-center">
@@ -493,16 +505,19 @@ function LogWorkout() {
                         </div>
 
                         <div className="flex justify-between">
-                          <Button
-                            variant="ghost"
-                            className="hover:bg-transparent! flex ml-5"
-                            onClick={() => {
-                              addSet(exercise.key, chunk.key);
-                              setlogDisabled(false);
-                            }}
-                          >
-                            Add Set?
-                          </Button>
+                          {chunk.key ==
+                            setRows.current[exercise.key - 1].length && (
+                            <Button
+                              variant="ghost"
+                              className="hover:bg-transparent! flex ml-5"
+                              onClick={() => {
+                                addSet(exercise.key, chunk.key);
+                                setAnyEmpty(true);
+                              }}
+                            >
+                              Add Set?
+                            </Button>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -526,6 +541,8 @@ function LogWorkout() {
                     className="hover:bg-transparent! "
                     onClick={() => {
                       addExercise();
+                      setAnyEmpty(true);
+
                       setAddExerciseVis(false);
                     }}
                   >
@@ -539,7 +556,7 @@ function LogWorkout() {
                 className="text-white w-full"
                 disabled={anyEmpty || focusInput.trim() === ""}
                 onClick={async () => {
-                  await addWorkoutSQL();
+                  await handleNonExistingExercise();
                 }}
               >
                 Log Workout

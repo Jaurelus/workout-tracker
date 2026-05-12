@@ -110,6 +110,16 @@ app.UseHttpsRedirection();
             var total = await repo.getTotalSetsForWorkout(wID);
             return Results.Ok(total);
         });
+        app.MapDelete("/deleteSet", async (SetsRepository repo, [FromQuery] int wID) =>
+        {
+            await repo.deleteSet(wID);
+            return Results.Ok();
+        });
+        app.MapPut("/editSet", async (SetsRepository repo, WSets set) =>
+        {
+            await repo.updateSet(set, null);
+            return Results.Ok();
+        });
     }
 
     //Workout Routes
@@ -139,6 +149,11 @@ app.UseHttpsRedirection();
         {
             var workouts = await repo.getWeekWorkouts(weekStart, weekEnd);
             return Results.Ok(workouts);
+        });
+        app.MapPut("/editWorkout", async (WorkoutsRepository repo, Workouts workout) =>
+        {
+            await repo.editWorkout(workout);
+            return Results.Ok();
         });
     }
 

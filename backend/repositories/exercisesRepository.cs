@@ -77,23 +77,23 @@ namespace WorkoutTrackerAPI.repositories
             //execute
             return await connection.QueryAsync<string>(sql);
         }
-        public async Task<bool> exerciseExists(string exerciseName)
+        public async Task<int> exerciseExists(string exerciseName)
         {
             var connection = _db.CreateConnection();
-            var sql = @"SELECT COUNT(*)
+            var sql = @"SELECT eID
                         FROM Exercises
                         WHERE eName = @name";
             var count = await connection.ExecuteScalarAsync<int>(sql, new
             {
                 name = exerciseName
             });
-            if (count == 1)
+            if (count >= 1)
             {
-                return true;
+                return count;
             }
             else
             {
-                return false;
+                return 0;
             }
         }
 

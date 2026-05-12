@@ -42,7 +42,7 @@ namespace WorkoutTrackerAPI.models
             if (totalSets != null)
             {
                 var sql = @"UPDATE WSets 
-                           exerciseID= @EID, Reps=@Reps, Weight=@Weight
+                           SET exerciseID= @EID, Reps=@Reps, Weight=@Weight
                            ORDER BY sID DESC
                            LIMIT @N";
                 await connection.ExecuteAsync(sql, new
@@ -122,6 +122,14 @@ namespace WorkoutTrackerAPI.models
 
         }
 
+        public async Task deleteSet(int sID)
+        {
+            var connection = _db.CreateConnection();
+            var sql = @"DELETE FROM WSets
+                        WHERE sID=@SID";
+            await connection.ExecuteAsync(sql, new { SID = sID });
+
+        }
     }
 
 

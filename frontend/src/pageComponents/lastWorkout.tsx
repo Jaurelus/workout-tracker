@@ -30,7 +30,7 @@ function LastWorkout() {
               <CardTitle className="mb-2">
                 <h1 className="text-2xl text-white">Last Workout</h1>
               </CardTitle>
-              <p>{workout.focus}</p>
+              <p className="">{workout.focus}</p>
             </CardHeader>
           )}
         </Card>
