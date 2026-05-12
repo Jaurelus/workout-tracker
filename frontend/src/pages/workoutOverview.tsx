@@ -11,7 +11,7 @@ import {
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useState, useRef } from "react";
-import { Button } from "@base-ui/react";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -22,6 +22,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
+import { EllipsisVertical, Pencil, Trash2, Undo2 } from "lucide-react";
+import { ButtonGroup } from "@/components/ui/button-group";
 
 function WorkoutOverview() {
   const { id } = useParams();
@@ -31,6 +33,7 @@ function WorkoutOverview() {
   const [, forceUpdate] = useState(0);
   const [setExerciseTotal, setSetExerciseTotal] = useState([]);
   const [weightExercisesTotal, setWeightExercisesTotal] = useState(0);
+  const [editMode, setEditMode] = useState(false);
 
   const getTotals = () => {
     if (!groupedSets) return;
@@ -60,6 +63,41 @@ function WorkoutOverview() {
     console.log(groupedSets.current);
   }, [sets]);
 
+  const handleEdit = () => {
+    if (editMode) {
+      setEditMode(false);
+      //turn everything back into what it was
+      let headerInputs = document.querySelectorAll(".header");
+      headerInputs.forEach((header, index) => {
+        console.log("All values: ", header);
+
+        if (index == 0) {
+          let date = document.createElement("p");
+          date.innerText = header.innerHTML;
+          console.log("Date", date);
+          console.log("header ", header.textContent);
+          header.replaceWith(date);
+        }
+      });
+      return;
+    }
+    setEditMode(true);
+    const selected = document.querySelectorAll(".editable");
+    selected.forEach((element, index) => {
+      const input = document.createElement("input");
+      input.value = element.innerHTML;
+      input.style.border = "1px solid #d23f2f";
+      input.style.borderRadius = "10px";
+      input.style.textAlign = "center";
+      if (index < 2) {
+        input.classList.add("header");
+      } else {
+        input.classList.add("setStuff");
+      }
+      element.replaceWith(input);
+      console.log("Inputs");
+    });
+  };
   //--------- API CALL -----------
   const getWorkoutInfo = async () => {
     console.log("ID");
@@ -104,18 +142,35 @@ function WorkoutOverview() {
 
   //-------- APP BUILD -------------
   return (
-    <div className=" bg-background h-screen flex flex-1 justify-center items-center">
+    <div className="w-screen bg-background h-screen flex flex-1 justify-center items-center">
       {workout && (
-        <div className="h-full flex flex-1 flex-col p-10 gap-5 justify-start">
-          <Card className=" items-start    min-h-40">
+        <div className=" relative h-full w-full flex flex-1 flex-col p-10 gap-5 justify-start">
+          <Card className=" items-start w-full   min-h-40">
             <CardHeader className="">
-              <p className="text-secondary">
+              <p className="text-secondary editable">
                 {new Date(workout.date).toLocaleDateString()}
               </p>
-              <CardTitle className="font-bold text-4xl">
+              <CardTitle className="font-bold text-4xl editable">
                 {workout.focus}
               </CardTitle>
             </CardHeader>
+            <div className="w-full flex  flex-1 relative">
+              <ButtonGroup className="absolute right-0 bottom-5">
+                <Button
+                  variant="outline"
+                  className=""
+                  onClick={() => {
+                    handleEdit();
+                  }}
+                >
+                  {!editMode && <Pencil />}
+                  {editMode && <Undo2 />}
+                </Button>
+                <Button className=" rounded-xl p-2  bg-[color-mix(in_srgb,var(--primary),black_60%)] text-primary [a]:hover:bg-primary/80 border-primary">
+                  <Trash2 className="text-primary" />
+                </Button>
+              </ButtonGroup>
+            </div>
             <CardContent>
               <Badge> exercises</Badge>
               <Badge> sets</Badge>
@@ -180,12 +235,18 @@ function WorkoutOverview() {
                           <TableHead className="text-center">Reps</TableHead>
                         </TableRow>
                       </TableHeader>
-                      <TableBody className="">
+                      <TableBody className="jusitfy-center items-center">
                         {groupedSets.current[index].map((set, setIndex) => (
-                          <TableRow className="">
-                            <TableCell>{setIndex + 1}</TableCell>
-                            <TableCell>{set.weight}</TableCell>
-                            <TableCell>{set.reps}</TableCell>
+                          <TableRow className="jusitfy-center items-center">
+                            <TableCell className="jusitfy-center items-center">
+                              <p className="editable"> {setIndex + 1}</p>
+                            </TableCell>
+                            <TableCell>
+                              <p className="editable"> {set.weight}</p>
+                            </TableCell>
+                            <TableCell>
+                              <p className="editable"> {set.reps}</p>
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -195,6 +256,13 @@ function WorkoutOverview() {
               ))}
             </div>
           )}
+        </div>
+      )}
+      {editMode && (
+        <div className="fixed w-full bottom-0 px-10  ">
+          <Button className="flex flex-1  w-full  text-white">
+            Submit Edits
+          </Button>
         </div>
       )}
     </div>
