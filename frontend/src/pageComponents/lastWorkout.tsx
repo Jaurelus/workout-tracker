@@ -31,6 +31,7 @@ function LastWorkout() {
                 <h1 className="text-2xl text-white">Last Workout</h1>
               </CardTitle>
               <p className="">{workout.focus}</p>
+              <p className="">{workout.date.slice(0, 10)}</p>
             </CardHeader>
           )}
         </Card>

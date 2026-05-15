@@ -78,6 +78,7 @@ function Appp() {
     const data = await response.json();
     if (response.ok) {
       console.log("Success deleting", data);
+      await getExercises();
     } else {
       console.log("Error deleting exercise", data);
     }
@@ -106,6 +107,8 @@ function Appp() {
                     Secondary Muscles
                   </TableHead>
                   <TableHead className="text-center">Tips</TableHead>
+                  <TableHead className="text-center"></TableHead>
+                  <TableHead className="text-center"></TableHead>
                 </TableRow>
               </TableHeader>
               {exercises && (
@@ -166,19 +169,18 @@ function Appp() {
             </Table>
           </div>
           <Button
-            className="rounded-4xl items-center bottom-0"
+            className="w-20 h-20 absolute rounded-full items-center bottom-25 right-50 "
             onClick={() => {
               setAddModalVis((prev) => !prev);
             }}
           >
-            <ListPlus size={16} color="white" />
+            <ListPlus size={32} color="white" className="" />
           </Button>
           <div>
             <AddExerciseModal
               visibility={addModalVis}
               changeVisibility={setAddModalVis}
             />
-            <Button onClick={getExercises}>test</Button>
           </div>
           <div>
             {addEditVis && (

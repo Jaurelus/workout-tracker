@@ -1,3 +1,4 @@
+using System.Data;
 using System.Data.Common;
 using System.Numerics;
 using Microsoft.AspNetCore.Mvc;
@@ -110,15 +111,20 @@ app.UseHttpsRedirection();
             var total = await repo.getTotalSetsForWorkout(wID);
             return Results.Ok(total);
         });
-        app.MapDelete("/deleteSet", async (SetsRepository repo, [FromQuery] int wID) =>
+        app.MapDelete("/deleteSet", async (SetsRepository repo, [FromQuery] int sID) =>
         {
-            await repo.deleteSet(wID);
+            await repo.deleteSet(sID);
             return Results.Ok();
         });
         app.MapPut("/editSet", async (SetsRepository repo, WSets set) =>
         {
             await repo.updateSet(set, null);
             return Results.Ok();
+        });
+        app.MapGet("/getTopSet", async (SetsRepository repo, [FromQuery] int wID) =>
+        {
+            var sets = await repo.getTopSet(wID);
+            return Results.Ok(sets);
         });
     }
 
@@ -154,6 +160,16 @@ app.UseHttpsRedirection();
         {
             await repo.editWorkout(workout);
             return Results.Ok();
+        });
+        app.MapGet("/getTotalVolume", async (WorkoutsRepository repo, [FromQuery] int wid) =>
+        {
+            var rows = await repo.getWorkoutVolume(wid);
+            return Results.Ok(rows);
+        });
+        app.MapGet("/getVolumeByExercise", async (WorkoutsRepository repo, [FromQuery] int wid) =>
+        {
+            var rows = await repo.getWorkoutVolumebyExercise(wid);
+            return Results.Ok(rows);
         });
     }
 

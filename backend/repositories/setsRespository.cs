@@ -130,6 +130,28 @@ namespace WorkoutTrackerAPI.models
             await connection.ExecuteAsync(sql, new { SID = sID });
 
         }
+
+        public async Task<IEnumerable<WSets>> getTopSet(int wID)
+        {
+            var connection = _db.CreateConnection();
+            var sql = @"WITH SetRnks AS (
+                        SELECT *, 
+                        ROW_NUMBER() OVER(PARTITION BY exerciseID ORDER BY Weight DESC) AS row_num
+                        FROM WSets
+                        WHERE workoutID= @WID
+                        ) 
+                        SELECT * FROM SetRnks 
+                        WHERE row_num=1";
+            var rows = await connection.QueryAsync(sql, new { WID = wID });
+            return rows.Select((row) => new WSets
+            {
+                Id = row.sID,
+                Exercises = { Id = row.exerciseID },
+                reps = row.Reps,
+                weight = row.Weight,
+                wID = row.workoutID
+            });
+        }
     }
 
 

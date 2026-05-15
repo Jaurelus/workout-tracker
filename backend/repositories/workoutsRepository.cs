@@ -29,7 +29,8 @@ namespace WorkoutTrackerAPI
         public async Task<IEnumerable<Workouts>> getWorkouts()
         {
             var connection = _db.CreateConnection();
-            var sql = @"SELECT * FROM Workouts";
+            var sql = @"SELECT * FROM Workouts
+                        ORDER BY wDate DESC";
             var rows = await connection.QueryAsync(sql);
             return rows.Select((row) => new Workouts
             {
@@ -96,6 +97,33 @@ namespace WorkoutTrackerAPI
                         SET wDate = @DATE, focus =@FOCUS
                         WHERE wID = @WID";
             await connection.ExecuteAsync(sql, new { DATE = workout.Date, FOCUS = workout.Focus, WID = workout.Id });
+        }
+        public async Task<IEnumerable<dynamic>> getWorkoutVolumebyExercise(int wid)
+        {
+            var connection = _db.CreateConnection();
+            var sql = @"SELECT *, SUM(Weight*Reps) 
+                      OVER (PARTITION BY exerciseID) AS setVolume
+                     FROM WSets
+                    WHERE workoutID = @WID";
+            var rows = await connection.QueryAsync(sql, new { WID = wid });
+            return rows.Select((row) => new
+            {
+                Id = row.sID,
+                ExerciseID = row.exerciseID,
+                reps = row.Reps,
+                weight = row.Weight,
+                wID = row.workoutID,
+                exerciseVolume = row.setVolume,
+            });
+        }
+
+        public async Task<int> getWorkoutVolume(int wid)
+        {
+            var connection = _db.CreateConnection();
+            var sql = @"SELECT SUM(Weight*Reps) FROM WSets
+                    WHERE workoutID = @WID";
+            var res = await connection.ExecuteScalarAsync<int>(sql, new { wid = wid });
+            return res;
         }
     }
 

@@ -49,6 +49,7 @@ import {
   Combobox,
   ComboboxInput,
 } from "@/components/ui/combobox";
+import TotalVolume from "@/pageComponents/totalVolumeCard";
 
 function WorkoutOverview() {
   const { id } = useParams();
@@ -81,6 +82,7 @@ function WorkoutOverview() {
   const updatedSets = useRef<
     Record<number, { weight?: string; reps?: string; exerciseName?: string }>
   >({});
+  const [setDeleted, setSetDeleted] = useState(false);
 
   const addExercise = () => {
     setRows.current.push([{ key: 1 }]);
@@ -327,7 +329,23 @@ function WorkoutOverview() {
       console.log("Error logging set", data);
     }
   };
-  const deleteSetSQL = async () => {};
+  const deleteSetSQL = async (sID) => {
+    const response = await fetch(`http://localhost:5117/deleteSet?sID=${sID}`, {
+      headers: { "Content-Type": "application/json" },
+      method: "DELETE",
+    });
+    const data = await response.json();
+    if (response.ok) {
+      console.log("Succes deleting the set ", data);
+      setSetDeleted(true);
+    } else {
+      (console.log("Error deleting set"), data);
+    }
+  };
+  useEffect(() => {
+    if (!setDeleted) return;
+    getSets();
+  }, [setDeleted]);
 
   //-------- APP BUILD -------------
   return (
@@ -491,9 +509,11 @@ function WorkoutOverview() {
             </ResponsiveContainer>
           </Card>
           <div className="flex-row flex flex-1 justify-between gap-5 max-h-32">
-            <Card className=" items-center flex-1">Total Volume</Card>
+            <TotalVolume workout={workout} />
             <Card className=" items-center flex-1">Top Weight</Card>
-            <Card className=" items-center flex-1">Most intense exercise</Card>
+            <Card className=" items-center flex-1">
+              Most intense exercise (Set Volume)
+            </Card>
           </div>
           {/* Map exercises */}
           <div className="gap-5 flex flex-1 flex-col">
@@ -578,7 +598,12 @@ function WorkoutOverview() {
                           {editMode && (
                             <TableCell>
                               <Button className=" rounded-xl p-2  bg-[color-mix(in_srgb,var(--primary),var(--background)_60%)] text-primary [a]:hover:bg-primary/80 border-primary">
-                                <Trash2 className="text-primary" />
+                                <Trash2
+                                  className="text-primary"
+                                  onClick={() => {
+                                    deleteSetSQL(set.id);
+                                  }}
+                                />
                               </Button>
                             </TableCell>
                           )}
