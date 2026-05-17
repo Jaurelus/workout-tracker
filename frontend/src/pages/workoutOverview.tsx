@@ -7,6 +7,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Bar,
 } from "recharts";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -493,6 +494,8 @@ function WorkoutOverview() {
                 ]}
               >
                 <XAxis dataKey="date" niceTicks="snap125"></XAxis>
+                <Bar dataKey="date" />
+
                 <YAxis
                   width="auto"
                   niceTicks="snap125"

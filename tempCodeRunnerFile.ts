@@ -1,2 +1,1 @@
-let today = new Date ()
-        console.log(today.getDay())
+console.log(new Date().setDate(0))

@@ -171,6 +171,16 @@ app.UseHttpsRedirection();
             var rows = await repo.getWorkoutVolumebyExercise(wid);
             return Results.Ok(rows);
         });
+        app.MapGet("/getVolumesByFocus", async (WorkoutsRepository repo, [FromQuery] string? focus) =>
+        {
+            var volumes = await repo.getVolumesbyFocus(focus);
+            return Results.Ok(volumes);
+        });
+        app.MapGet("/getTopFoci", async (WorkoutsRepository repo) =>
+        {
+            var foci = await repo.getTopFoci();
+            return Results.Ok(foci);
+        });
     }
 
 }

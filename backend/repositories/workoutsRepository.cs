@@ -1,3 +1,4 @@
+using System.Data;
 using System.Data.Common;
 using Dapper;
 using Microsoft.VisualBasic;
@@ -101,19 +102,21 @@ namespace WorkoutTrackerAPI
         public async Task<IEnumerable<dynamic>> getWorkoutVolumebyExercise(int wid)
         {
             var connection = _db.CreateConnection();
-            var sql = @"SELECT *, SUM(Weight*Reps) 
-                      OVER (PARTITION BY exerciseID) AS setVolume
-                     FROM WSets
-                    WHERE workoutID = @WID";
+            var sql = @"WITH eVol AS(
+                        SELECT *, SUM(Weight*Reps) 
+                        OVER (PARTITION BY exerciseID) AS setVolume
+                        FROM WSets
+                        WHERE workoutID = @WID)
+                        SELECT DISTINCT exerciseID, setVolume,eName FROM eVol
+                        JOIN Exercises
+                        ON exerciseID=eID";
             var rows = await connection.QueryAsync(sql, new { WID = wid });
             return rows.Select((row) => new
             {
-                Id = row.sID,
-                ExerciseID = row.exerciseID,
-                reps = row.Reps,
-                weight = row.Weight,
-                wID = row.workoutID,
-                exerciseVolume = row.setVolume,
+                Id = row.exerciseID,
+                exerciseName = row.eName,
+                exerciseVolume = row.setVolume
+
             });
         }
 
@@ -124,6 +127,65 @@ namespace WorkoutTrackerAPI
                     WHERE workoutID = @WID";
             var res = await connection.ExecuteScalarAsync<int>(sql, new { wid = wid });
             return res;
+        }
+        public async Task<IEnumerable<dynamic>> getVolumesbyFocus(string? focus)
+        {
+            var connection = _db.CreateConnection();
+            var sql = "";
+            if (focus == null)
+            {
+                sql = @"WITH mostFrq AS(
+                        SELECT focus
+                        FROM Workouts
+                        GROUP BY focus
+                        ORDER BY Count(*) DESC
+                        LIMIT 1)
+                        SELECT w.focus,SUM(Weight*Reps) AS totals, w.wDate
+                        FROM mostFRQ m
+                        JOIN Workouts w
+                        ON m.focus= w.focus
+                        JOIN WSets
+                        ON workoutID= w.wID
+                        GROUP BY wDate, w.focus";
+                var rows = await connection.QueryAsync(sql);
+                return rows.Select((row) => new
+                {
+                    Date = row.wDate.ToString("yyyy-MM-dd"),
+                    Volume = row.totals,
+                    Focus = row.focus
+                });
+            }
+            else
+            {
+                sql = @"SELECT SUM(Weight*Reps) AS totals, wDate 
+                        FROM Workouts
+                        JOIN WSets	
+                        ON workoutID=wID
+                        WHERE focus = @FOCUS
+                        GROUP BY wDate";
+
+                var rows = await connection.QueryAsync(sql, new
+                {
+                    FOCUS = focus
+                });
+                return rows.Select((row) => new
+                {
+                    date = row.wDate.ToString("yyyy-MM-dd"),
+                    volume = row.totals
+                });
+            }
+        }
+
+        public async Task<IEnumerable<string>> getTopFoci()
+        {
+            var connection = _db.CreateConnection();
+            var sql = @"SELECT focus
+                        FROM Workouts
+                        GROUP BY focus
+                        ORDER BY Count(*) DESC 
+                        LIMIT 5";
+            return await connection.QueryAsync<string>(sql);
+
         }
     }
 

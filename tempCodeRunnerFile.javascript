@@ -1,3 +1,6 @@
-let today = new Date ()
-        console.log(today.toISOString())
-       console.log (today.toDateString())
+let tdy =new Date()
+tdy.setMonth(new Date().getMonth()+1)
+
+tdy.setDate(0)
+console.log(tdy.getDate())
+
