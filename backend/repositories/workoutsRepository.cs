@@ -187,6 +187,17 @@ namespace WorkoutTrackerAPI
             return await connection.QueryAsync<string>(sql);
 
         }
+        public async Task<IEnumerable<dynamic>> getMonthWorkouts(string monthStart, string monthEnd)
+        {
+            var connection = _db.CreateConnection();
+            var sql = @"SELECT wDate FROM Workouts
+                        WHERE wDate>= @BEGIN AND wDate<@END";
+            return await connection.QueryAsync<string>(sql, new
+            {
+                BEGIN = monthStart,
+                END = monthEnd
+            });
+        }
     }
 
 }

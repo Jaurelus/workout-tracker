@@ -1,16 +1,83 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@base-ui/react";
+import { useEffect, useState } from "react";
 
 function Motivation() {
+  const [workoutDates, setWorkoutDates] = useState(null);
+  const [mappedDates, setMappedDates] = useState([]);
+  const daysinMonth = () => {
+    let tdy = new Date();
+    tdy.setMonth(new Date().getMonth() + 1);
+
+    tdy.setDate(0);
+    return tdy.getDate();
+  };
+  const getWorkoutsofMonth = async () => {
+    let b =
+      String(new Date().getFullYear()) +
+      "-" +
+      String(new Date().getMonth() + 1).padStart(2, "0") +
+      "-01";
+    let e =
+      String(new Date().getFullYear()) +
+      "-" +
+      String(new Date().getMonth() + 1).padStart(2, "0") +
+      "-" +
+      String(daysinMonth());
+    const response = await fetch(
+      `http://localhost:5117/getMonthWorkouts?monthBegin=${b}&monthEnd=${e}`,
+      {
+        headers: { "Content-Type": "application/json" },
+        method: "GET",
+      },
+    );
+    const data = await response.json();
+    if (response.ok) {
+      console.log("Success getting workouts of month", data);
+      setWorkoutDates(data);
+    } else console.log("Error getting workouts of month", data);
+  };
+  useEffect(() => {
+    getWorkoutsofMonth();
+  }, []);
+
+  const mapDates = () => {
+    let sliced = workoutDates.map((workout) => Number(workout.slice(3, 5)));
+    setMappedDates(sliced);
+  };
+  useEffect(() => {
+    if (!workoutDates) return;
+    mapDates();
+  }, [workoutDates]);
   return (
     <div className="w-full h-full">
       <Card className="bg-primary flex w-full h-full py-0! pl-3!">
-        <Card className="bg-primary-foreground  p-2 flex w-full h-full ml-3 rounded-none">
-          <h1 className="text-2xl text-white">
-            {new Date().toLocaleDateString("en-US", {
-              month: "long",
-            })}
-          </h1>
-          <CardContent></CardContent>
+        <Card className="bg-primary-foreground  p-2 flex w-full h-full ml-3 rounded-none ">
+          <CardHeader>
+            <h1 className="text-2xl text-white">
+              {new Date().toLocaleDateString("en-US", {
+                month: "long",
+              })}
+            </h1>
+          </CardHeader>
+
+          <CardContent className="grid grid-cols-7  mt-auto mb-auto gap-5">
+            <p>S</p>
+
+            <p>M</p>
+            <p>T</p>
+            <p>W</p>
+            <p>TH</p>
+            <p>F</p>
+            <p>S</p>
+
+            {Array.from({ length: daysinMonth() }, (_, i) => (
+              <div
+                className={`w-10 h-10 rounded-xl border border-white ${mappedDates.includes(i) ? "bg-primary" : "bg-primary-foreground"}`}
+                key={i}
+              ></div>
+            ))}
+          </CardContent>
         </Card>
       </Card>
     </div>

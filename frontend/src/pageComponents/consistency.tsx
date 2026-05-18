@@ -58,7 +58,7 @@ function Consistency() {
       <Card className="bg-primary flex w-full h-full py-0! pl-3!">
         <Card className="bg-primary-foreground flex-1 flex w-full h-full ml-3 rounded-none">
           <CardHeader>
-            <h1 className="text-2xl text-white">Consistency</h1>
+            <h1 className="text-2xl text-white">This Week</h1>
           </CardHeader>
           <CardContent className="flex-row flex mt-auto mb-auto w-full justify-center ml-0 pl-2.5!">
             {Array.from({ length: 7 }).map((_, index) => (

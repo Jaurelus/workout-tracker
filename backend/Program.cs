@@ -181,6 +181,11 @@ app.UseHttpsRedirection();
             var foci = await repo.getTopFoci();
             return Results.Ok(foci);
         });
+        app.MapGet("/getMonthWorkouts", async (WorkoutsRepository repo, [FromQuery] string monthBegin, [FromQuery] string monthEnd) =>
+        {
+            var workouts = await repo.getMonthWorkouts(monthBegin, monthEnd);
+            return Results.Ok(workouts);
+        });
     }
 
 }
