@@ -27,11 +27,9 @@ import MySidebar from "@/pageComponents/sidebar";
 
 function ViewPast() {
   const [workouts, setWorkouts] = useState(null);
-  const totalExerciseCounts = useRef([]);
-  const totalSetCounts = useRef([]);
   const [, forceUpdate] = useState(0);
-  const [exerciseCounts, setExerciseCounts] = useState([]);
-  const [setCounts, setSetCounts] = useState([]);
+  const [exerciseCounts, setExerciseCounts] = useState({});
+  const [setCounts, setSetCounts] = useState({});
 
   //------------- API CALL -------------
   const getWorkouts = async () => {
@@ -55,10 +53,7 @@ function ViewPast() {
       await getTotalExerciseCount(workout.id);
 
       await getTotalSetCount(workout.id);
-      forceUpdate((prev) => prev + 1);
     });
-
-    console.log("Proof", totalExerciseCounts);
   }, [workouts]);
 
   const getTotalSetCount = async (wID: Number) => {
@@ -72,8 +67,7 @@ function ViewPast() {
     const data = await response.json();
     if (response.ok) {
       console.log("Set", data);
-      totalSetCounts.current.push(data);
-      setSetCounts((prev) => [...prev, data]);
+      setSetCounts((prev) => ({ ...prev, [wID]: data }));
     }
   };
   const getTotalExerciseCount = async (wID: Number) => {
@@ -88,8 +82,7 @@ function ViewPast() {
     if (response.ok) {
       console.log("Exercise", data);
 
-      totalExerciseCounts.current.push(data);
-      setExerciseCounts((prev) => [...prev, data]);
+      setExerciseCounts((prev) => ({ ...prev, [wID]: data }));
     }
   };
 
@@ -122,10 +115,10 @@ function ViewPast() {
                         <h1 className="font-extrabold text-xl">
                           {workout.focus}
                         </h1>
-                        {exerciseCounts.length > 0 && (
+                        {exerciseCounts && (
                           <p className="text-[color-mix(in_srgb,var(--primary-foreground)_60%,white)] brightness-130">
-                            {exerciseCounts[index]} exercises ·{" "}
-                            {setCounts[index]} sets
+                            {exerciseCounts[workout.id]} exercises ·{" "}
+                            {setCounts[workout.id]} sets
                           </p>
                         )}
                       </div>
