@@ -26,11 +26,12 @@ import { Separator } from "@/components/ui/separator";
 import MySidebar from "@/pageComponents/sidebar";
 
 function ViewPast() {
-  const [viewColor, setViewColor] = useState("#d23f2f");
   const [workouts, setWorkouts] = useState(null);
   const totalExerciseCounts = useRef([]);
   const totalSetCounts = useRef([]);
   const [, forceUpdate] = useState(0);
+  const [exerciseCounts, setExerciseCounts] = useState([]);
+  const [setCounts, setSetCounts] = useState([]);
 
   //------------- API CALL -------------
   const getWorkouts = async () => {
@@ -72,6 +73,7 @@ function ViewPast() {
     if (response.ok) {
       console.log("Set", data);
       totalSetCounts.current.push(data);
+      setSetCounts((prev) => [...prev, data]);
     }
   };
   const getTotalExerciseCount = async (wID: Number) => {
@@ -87,6 +89,7 @@ function ViewPast() {
       console.log("Exercise", data);
 
       totalExerciseCounts.current.push(data);
+      setExerciseCounts((prev) => [...prev, data]);
     }
   };
 
@@ -119,23 +122,21 @@ function ViewPast() {
                         <h1 className="font-extrabold text-xl">
                           {workout.focus}
                         </h1>
-                        {totalExerciseCounts.current.length > 0 && (
+                        {exerciseCounts.length > 0 && (
                           <p className="text-[color-mix(in_srgb,var(--primary-foreground)_60%,white)] brightness-130">
-                            {totalExerciseCounts.current[index]} exercises ·{" "}
-                            {totalSetCounts.current[index]} sets
+                            {exerciseCounts[index]} exercises ·{" "}
+                            {setCounts[index]} sets
                           </p>
                         )}
                       </div>
                       <Link to={`workout/${workout.id}`}>
                         <Button
                           variant="ghost"
-                          className="text-primary hover:bg-transparent!"
-                          onMouseEnter={() => setViewColor("#ffffff")}
-                          onMouseLeave={() => setViewColor("#d23f2f")}
+                          className="group text-primary hover:bg-transparent!"
                         >
                           View
-                          <ArrowRightToLine color={viewColor} />
-                        </Button>{" "}
+                          <ArrowRightToLine className="group-hover:text-white " />
+                        </Button>
                       </Link>
                     </CardContent>
                   </Card>

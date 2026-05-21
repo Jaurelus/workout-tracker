@@ -7,7 +7,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Bar,
 } from "recharts";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -51,6 +50,7 @@ import {
   ComboboxInput,
 } from "@/components/ui/combobox";
 import TotalVolume from "@/pageComponents/totalVolumeCard";
+import OverviewBadges from "@/pageComponents/overviewbadges";
 
 function WorkoutOverview() {
   const { id } = useParams();
@@ -472,8 +472,7 @@ function WorkoutOverview() {
               </ButtonGroup>
             </div>
             <CardContent>
-              <Badge> exercises</Badge>
-              <Badge> sets</Badge>
+              <OverviewBadges wid={id} />
             </CardContent>
           </Card>
           <Card className="min-h-100 items-center flex flex-1 w-full shadow-lg shadow-primary mb-3">
@@ -494,7 +493,6 @@ function WorkoutOverview() {
                 ]}
               >
                 <XAxis dataKey="date" niceTicks="snap125"></XAxis>
-                <Bar dataKey="date" />
 
                 <YAxis
                   width="auto"
