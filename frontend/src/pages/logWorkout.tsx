@@ -553,15 +553,17 @@ function LogWorkout() {
               </div>
             </CardContent>
             <CardFooter className="justify-center mt-5">
-              <Button
-                className="text-white w-full"
-                disabled={anyEmpty || focusInput.trim() === ""}
-                onClick={async () => {
-                  await handleNonExistingExercise();
-                }}
-              >
-                Log Workout
-              </Button>
+              <form className="w-full">
+                <Button
+                  className="text-white w-full"
+                  disabled={anyEmpty || focusInput.trim() === ""}
+                  onClick={async () => {
+                    await handleNonExistingExercise();
+                  }}
+                >
+                  Log Workout
+                </Button>
+              </form>
             </CardFooter>
           </Card>
         </main>

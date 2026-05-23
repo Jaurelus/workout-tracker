@@ -1,14 +1,19 @@
 import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 
-function OverviewBadges(wid: Number) {
+function OverviewBadges({ wid }: { wid: Number }) {
   const [totalExercises, setTotalExercises] = useState(0);
   const [totalSets, setTotalSets] = useState(0);
-  const wID = wid;
+  const [wID, setwID] = useState(0);
+  console.log("tHE WIDS", wid);
+  console.log(typeof wID);
 
   const getTotalSetCount = async (wID: Number) => {
+    if (!wID) return;
+    console.log("SEts resp---------------------");
+
     const response = await fetch(
-      `http://localhost:5117/getTotalSets/?wID=${wID}`,
+      `http://localhost:5117/getTotalSets/?wID=${wid}`,
       {
         headers: { "Content-Type": "application/json" },
         method: "GET",
@@ -21,8 +26,10 @@ function OverviewBadges(wid: Number) {
     }
   };
   const getTotalExerciseCount = async (wID: Number) => {
+    if (!wID) return;
+
     const response = await fetch(
-      `http://localhost:5117/getTotalExercises/?wID=${wID}`,
+      `http://localhost:5117/getTotalExercises/?wID=${wid}`,
       {
         headers: { "Content-Type": "application/json" },
         method: "GET",
@@ -36,15 +43,15 @@ function OverviewBadges(wid: Number) {
     }
   };
   useEffect(() => {
-    if (!wID) return;
-    getTotalExerciseCount(wID);
-    getTotalSetCount(wID);
-  }, [wID]);
+    if (!wid) return;
+    getTotalExerciseCount(wid);
+    getTotalSetCount(wid);
+  }, [wid]);
 
   return (
     <div>
-      <Badge> exercises</Badge>
-      <Badge> sets</Badge>
+      <Badge>{totalExercises} exercises</Badge>
+      <Badge>{totalSets} sets</Badge>
     </div>
   );
 }
