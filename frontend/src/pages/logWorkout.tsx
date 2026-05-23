@@ -241,11 +241,12 @@ function LogWorkout() {
   };
 
   const addWorkoutSQL = async () => {
+    const localDate = `${String(date.getFullYear())}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     const response = await fetch("http://localhost:5117/addWorkout", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify({
-        Date: date,
+        Date: localDate,
         Focus: focusInput,
       }),
     });

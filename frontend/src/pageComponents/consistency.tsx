@@ -40,11 +40,11 @@ function Consistency() {
       let daysTillEnd = 7 - today.getDay();
       start.setDate(today.getDate() - daysTillStart);
       end.setDate(today.getDate() + daysTillEnd);
-      /*getWeekWorkouts(
+      getWeekWorkouts(
         start.toISOString().slice(0, 10),
         end.toISOString().slice(0, 10),
-      );*/
-      getWeekWorkouts("2026-05-04", "2026-05-10");
+      );
+      //getWeekWorkouts("2026-05-04", "2026-05-10");
     }
   }, []);
   useEffect(() => {
@@ -86,10 +86,15 @@ function Consistency() {
             ))}
           </CardContent>
           <CardFooter className="flex-col items-center justify-center">
-            <h2>You went to the gym {workDays.length} time this week</h2>
+            <h2>
+              You went to the gym {workDays.length} time
+              {workDays.length != 1 ? "s" : ""} this week
+            </h2>
             {workDays.length < 3 && (
               <h2>
-                {3 - workDays.length} more times to make it to 3 times this week
+                {3 - workDays.length} more time
+                {3 - workDays.length == 1 ? "" : "s"} to make it to 3 times this
+                week
               </h2>
             )}
             {workDays.length > 3 && (

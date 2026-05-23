@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 function Motivation() {
   const [workoutDates, setWorkoutDates] = useState(null);
   const [mappedDates, setMappedDates] = useState([]);
+  const [offset, setOffset] = useState(0);
   const daysinMonth = () => {
     let tdy = new Date();
     tdy.setMonth(new Date().getMonth() + 1);
@@ -37,13 +38,21 @@ function Motivation() {
       setWorkoutDates(data);
     } else console.log("Error getting workouts of month", data);
   };
+  const mapFirstDay = () => {
+    let first = new Date();
+    first.setDate(1);
+    setOffset(first.getDay());
+  };
   useEffect(() => {
     getWorkoutsofMonth();
+    mapFirstDay();
   }, []);
 
   const mapDates = () => {
+    if (!offset) return;
     let sliced = workoutDates.map((workout) => Number(workout.slice(3, 5)));
     setMappedDates(sliced);
+    console.log("SLICED : ", sliced);
   };
   useEffect(() => {
     if (!workoutDates) return;
@@ -61,23 +70,32 @@ function Motivation() {
             </h1>
           </CardHeader>
 
-          <CardContent className="grid grid-cols-7  mt-auto mb-auto gap-5">
-            <p>S</p>
+          {
+            <CardContent className="grid grid-cols-7  mt-auto mb-auto gap-5">
+              <p>S</p>
 
-            <p>M</p>
-            <p>T</p>
-            <p>W</p>
-            <p>TH</p>
-            <p>F</p>
-            <p>S</p>
+              <p>M</p>
+              <p>T</p>
+              <p>W</p>
+              <p>TH</p>
+              <p>F</p>
+              <p>S</p>
 
-            {Array.from({ length: daysinMonth() }, (_, i) => (
-              <div
-                className={`w-10 h-10 rounded-xl border border-white ${mappedDates.includes(i) ? "bg-primary" : "bg-primary-foreground"}`}
-                key={i}
-              ></div>
-            ))}
-          </CardContent>
+              {Array.from({ length: daysinMonth() + offset }, (_, i) =>
+                i < offset ? (
+                  <div
+                    className={`w-10 h-10 rounded-xl  ${"bg-primary-foreground"}`}
+                    key={i}
+                  ></div>
+                ) : (
+                  <div
+                    className={`w-10 h-10 rounded-xl border border-white ${mappedDates.includes(i - offset + 1) ? "bg-primary" : "bg-primary-foreground"}`}
+                    key={i}
+                  ></div>
+                ),
+              )}
+            </CardContent>
+          }
         </Card>
       </Card>
     </div>

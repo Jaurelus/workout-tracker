@@ -84,6 +84,9 @@ function Appp() {
     }
   };
 
+  useEffect(() => {
+    getExercises();
+  }, [addModalVis, addEditVis]);
   //------------- APP BUILD ------------
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">

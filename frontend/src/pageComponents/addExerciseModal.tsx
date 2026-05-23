@@ -123,7 +123,10 @@ function AddExerciseModal({
             size="lg"
             disabled={eName ? false : true}
             className="bg-primary !rounded-lg text-white flex flex-1"
-            onClick={addExercise}
+            onClick={() => {
+              addExercise();
+              changeVisibility((prev) => !prev);
+            }}
           >
             +
           </AlertDialogAction>

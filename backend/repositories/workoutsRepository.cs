@@ -83,7 +83,7 @@ namespace WorkoutTrackerAPI
                 WS = weekStart,
                 WE = weekEnd
             });
-            return rows.Select((row) => new Workouts
+            return rows.GroupBy(row => row.wDate).Select(group => group.First()).Select((row) => new Workouts
             {
                 Id = row.wID,
                 Date = row.wDate,

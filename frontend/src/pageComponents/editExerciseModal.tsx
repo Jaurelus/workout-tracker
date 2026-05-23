@@ -145,6 +145,7 @@ function EditExerciseModal({
             className="bg-primary !rounded-lg text-white flex flex-1"
             onClick={() => {
               editExercise(selectedExercise.id);
+              changeVisibility((prev) => !prev);
             }}
           >
             <SendHorizonal />

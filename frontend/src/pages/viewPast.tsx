@@ -108,9 +108,7 @@ function ViewPast() {
                     <CardContent className="flex flex-row justify-between">
                       <div className="flex-col gap-3 justify-left text-left">
                         <CardTitle className="text-[color-mix(in_srgb,var(--primary-foreground)_60%,white)] brightness-130">
-                          {new Date(
-                            workout.date.slice(0, 10),
-                          ).toLocaleDateString()}
+                          {new Date(workout.date).toLocaleDateString()}
                         </CardTitle>
                         <h1 className="font-extrabold text-xl">
                           {workout.focus}

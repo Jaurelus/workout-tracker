@@ -84,7 +84,7 @@ function Chart() {
                       getVolumesbyFocus(foci[0]);
                     }}
                     variant="outline"
-                    className={`${focusSelected[0] ? "bg-primary" : "bg-primary-foreground"} border-white text-white`}
+                    className={`${focusSelected[0] ? "!bg-primary" : "bg-primary-foreground"} border-white text-white`}
                   >
                     {foci[0]}
                   </Button>
@@ -98,7 +98,7 @@ function Chart() {
                       getVolumesbyFocus(foci[1]);
                     }}
                     variant="outline"
-                    className={`${focusSelected[1] ? "bg-primary" : "bg-primary-foreground"} border-white text-white`}
+                    className={`${focusSelected[1] ? "!bg-primary" : "bg-primary-foreground"} border-white text-white`}
                   >
                     {foci[1]}
                   </Button>
@@ -112,7 +112,7 @@ function Chart() {
                       getVolumesbyFocus(foci[2]);
                     }}
                     variant="outline"
-                    className={`${focusSelected[2] ? "bg-primary" : "bg-primary-foreground"} border-white text-white`}
+                    className={`${focusSelected[2] ? "!bg-primary" : "bg-primary-foreground"} border-white text-white`}
                   >
                     {foci[2]}
                   </Button>
@@ -126,7 +126,7 @@ function Chart() {
                       getVolumesbyFocus(foci[3]);
                     }}
                     variant="outline"
-                    className={`${focusSelected[3] ? "bg-primary" : "bg-primary-foreground"} border-white text-white`}
+                    className={`${focusSelected[3] ? "!bg-primary" : "bg-primary-foreground"} border-white text-white`}
                   >
                     {foci[3]}
                   </Button>
@@ -140,7 +140,7 @@ function Chart() {
                       getVolumesbyFocus(foci[4]);
                     }}
                     variant="outline"
-                    className={`${focusSelected[4] ? "bg-primary" : "bg-primary-foreground"} border-white text-white`}
+                    className={`${focusSelected[4] ? "!bg-primary" : "bg-primary-foreground"} border-white text-white`}
                   >
                     {foci[4]}
                   </Button>
