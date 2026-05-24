@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -54,6 +54,15 @@ import OverviewBadges from "@/pageComponents/overviewbadges";
 import TopWeight from "@/pageComponents/topWeight";
 import OverviewChart from "@/pageComponents/overviewChart";
 import OverviewIntense from "@/pageComponents/overviewIntense";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 function WorkoutOverview() {
   const { id } = useParams();
@@ -87,10 +96,12 @@ function WorkoutOverview() {
     Record<number, { weight?: string; reps?: string; exerciseName?: string }>
   >({});
   const [setDeleted, setSetDeleted] = useState(false);
+  const navigate = useNavigate();
 
   const addExercise = () => {
     setRows.current.push([{ key: 1 }]);
     weight.current.push([]);
+    reps.current.push([]);
 
     addExerciseRow((prev) => [...prev, { key: prev.length + 1 }]);
   };
@@ -315,6 +326,10 @@ function WorkoutOverview() {
     exerciseIteration: string,
     workoutID: Number,
   ) => {
+    const exists = await exerciseExists(exerciseIteration);
+    if (!exists) {
+      await addExerciseSQL(exerciseIteration);
+    }
     const response = await fetch("http://localhost:5117/addSet", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
@@ -351,7 +366,20 @@ function WorkoutOverview() {
     setSetDeleted(false);
   }, [setDeleted]);
 
-  //-------- APP BUILD -------------
+  const deleteWorkout = async () => {
+    const response = await fetch(
+      `http://localhost:5117/deleteWorkout?wid=${id}`,
+      {
+        headers: { "Content-Type": "application/json" },
+        method: "DELETE",
+      },
+    );
+    if (response.ok) {
+      console.log("Success deleting the workout ");
+    } else {
+      console.log("Error deleting workout");
+    }
+  }; //-------- APP BUILD -------------
   return (
     <div className="w-screen bg-background h-screen flex flex-1 justify-center items-center">
       {workout && (
@@ -469,16 +497,37 @@ function WorkoutOverview() {
                   {!editMode && <Pencil />}
                   {editMode && <Undo2 />}
                 </Button>
-                <Button className=" rounded-xl p-2  bg-[color-mix(in_srgb,var(--primary),var(--background)_60%)] text-primary [a]:hover:bg-primary/80 border-primary">
-                  <Trash2 className="text-primary" />
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button className=" rounded-xl p-2  bg-[color-mix(in_srgb,var(--primary),var(--background)_60%)] text-primary [a]:hover:bg-primary/80 border-primary">
+                      <Trash2 className="text-primary" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="items-center flex justify-center flex-col">
+                    <AlertDialogTitle>
+                      Are you sure you want to delete this workout ?
+                    </AlertDialogTitle>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="text-white!"
+                        onClick={async () => {
+                          await deleteWorkout(Number(id));
+                          navigate("/pastWorkouts");
+                        }}
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </ButtonGroup>
             </div>
             <CardContent>
               <OverviewBadges wid={id} />
             </CardContent>
           </Card>
-          <OverviewChart />
+          <OverviewChart id={id} />
           <div className="flex-row flex flex-1 justify-between gap-5 max-h-32">
             <TotalVolume workout={workout} />
             <TopWeight workout={workout} />
@@ -786,7 +835,7 @@ function WorkoutOverview() {
 
               if (newSetAdded) {
                 for (let i = 1; i < weight.current.length; i++) {
-                  for (let j = 0; j < weight.current[i].length; j++) {
+                  for (let j = 1; j < weight.current[i].length; j++) {
                     await addSetSQL(
                       Number(weight.current[i][j]),
                       Number(reps.current[i][j]),

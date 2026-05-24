@@ -192,6 +192,11 @@ app.UseHttpsRedirection();
             var workouts = await repo.getMonthWorkouts(monthBegin, monthEnd);
             return Results.Ok(workouts);
         });
+        app.MapDelete("/deleteWorkout", async (WorkoutsRepository repo, [FromQuery] int wid) =>
+        {
+            await repo.deleteWorkout(wid);
+            return Results.Ok();
+        });
     }
 
 }

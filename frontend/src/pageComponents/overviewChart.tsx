@@ -1,37 +1,76 @@
 import { Card, CardTitle } from "@/components/ui/card";
-import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
+import { useEffect, useState } from "react";
+import {
+  Area,
+  AreaChart,
+  PolarAngleAxis,
+  PolarGrid,
+  PolarRadiusAxis,
+  Radar,
+  RadarChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from "recharts";
 
-function OverviewChart() {
+function OverviewChart({ id }: { id: number }) {
+  const [sets, setSets] = useState();
+  const [chrtData, setchrtData] = useState();
+  const getSets = async () => {
+    const response = await fetch(
+      `http://localhost:5117/getSetByWID/?wID=${id}`,
+      { headers: { "Content-Type": "application/json" }, method: "GET" },
+    );
+    const data = await response.json();
+    if (response.ok) {
+      console.log("Success sets ", data);
+      setSets(data);
+    } else {
+      console.log("Error", data);
+    }
+  };
+  useEffect(() => {
+    getSets();
+  }, []);
+  useEffect(() => {
+    if (!sets) return;
+    let chrtData = sets.map(({ exercises, reps, weight }) => ({
+      name: exercises.name,
+      volume: reps * weight,
+    }));
+    chrtData = Object.values(
+      chrtData.reduce((total, current) => {
+        if (total[current.name]) {
+          total[current.name].volume += current.volume;
+        } else
+          total[current.name] = { name: current.name, volume: current.volume };
+        return total;
+      }, {}),
+    );
+    console.log("Chart shi", chrtData);
+
+    setchrtData(chrtData);
+  }, [sets]);
+
   return (
     <Card className="min-h-100 items-center flex flex-1 w-full shadow-lg shadow-primary mb-3">
       <CardTitle>Volume Over Time</CardTitle>
-      <ResponsiveContainer className="w-full h-full px-5">
-        <AreaChart
-          width={800}
-          height={300}
-          data={[
-            { date: "5/7", volume: 3500 },
-            { date: "5/8", volume: 4000 },
-            { date: "5/9", volume: 4000 },
-            { date: "5/10", volume: 4100 },
-            { date: "5/11", volume: 4200 },
-            { date: "5/12", volume: 4300 },
-            { date: "5/13", volume: 4400 },
-            { date: "5/14", volume: 4500 },
-          ]}
-        >
-          <XAxis dataKey="date" niceTicks="snap125"></XAxis>
+      {chrtData && (
+        <ResponsiveContainer className="w-full h-full px-5">
+          <RadarChart width={800} height={500} data={chrtData}>
+            <PolarGrid />
+            <PolarAngleAxis dataKey="name" />
+            <PolarRadiusAxis angle={30} />
 
-          <YAxis width="auto" niceTicks="snap125" domain={["3000", "5000"]} />
-
-          <Area
-            className="w-full h-full"
-            dataKey="volume"
-            stroke="#d23f2f"
-            fill="#d23f2f60"
-          ></Area>
-        </AreaChart>
-      </ResponsiveContainer>
+            <Radar
+              className="w-full h-full"
+              dataKey="volume"
+              stroke="#d23f2f"
+              fill="#d23f2f60"
+            ></Radar>
+          </RadarChart>
+        </ResponsiveContainer>
+      )}
     </Card>
   );
 }

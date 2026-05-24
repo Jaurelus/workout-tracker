@@ -198,6 +198,14 @@ namespace WorkoutTrackerAPI
                 END = monthEnd
             });
         }
+        public async Task deleteWorkout(int wid)
+        {
+            var connection = _db.CreateConnection();
+            var sql = @"DELETE FROM Workouts 
+                        WHERE wID= @WID";
+            await connection.ExecuteAsync(sql, new { WID = wid });
+
+        }
     }
 
 }
