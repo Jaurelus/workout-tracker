@@ -124,7 +124,13 @@ app.UseHttpsRedirection();
         app.MapGet("/getTopSet", async (SetsRepository repo, [FromQuery] int wID) =>
         {
             var sets = await repo.getTopSet(wID);
+            Console.Write(sets);
             return Results.Ok(sets);
+        });
+        app.MapGet("/getTopVolumeSet", async (SetsRepository repo, [FromQuery] int wid) =>
+        {
+            var set = await repo.getTopVolumeSet(wid);
+            return Results.Ok(set);
         });
     }
 

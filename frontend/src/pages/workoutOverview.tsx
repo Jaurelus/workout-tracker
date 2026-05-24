@@ -51,6 +51,9 @@ import {
 } from "@/components/ui/combobox";
 import TotalVolume from "@/pageComponents/totalVolumeCard";
 import OverviewBadges from "@/pageComponents/overviewbadges";
+import TopWeight from "@/pageComponents/topWeight";
+import OverviewChart from "@/pageComponents/overviewChart";
+import OverviewIntense from "@/pageComponents/overviewIntense";
 
 function WorkoutOverview() {
   const { id } = useParams();
@@ -267,13 +270,12 @@ function WorkoutOverview() {
         id: workout.id,
       }),
     });
-    const data = response.json();
     if (response.ok) {
       console.log("Workout succesfully edited");
       await getWorkoutInfo();
       setEditMode(false);
     } else {
-      console.log("Error editing workout", data);
+      console.log("Error editing workout");
     }
   };
   const editSetSQL = async (
@@ -291,19 +293,20 @@ function WorkoutOverview() {
       headers: { "Content-Type": "application/json" },
       method: "PUT",
       body: JSON.stringify({
-        exercises: { id: await exerciseExists(exerciseIteration) },
+        exercises: {
+          id: exists ? exists : await exerciseExists(exerciseIteration),
+        },
         reps: repIteration,
         weight: weightIteration,
         wID: workoutID,
         Id: setID,
       }),
     });
-    const data = await response.json();
     if (response.ok) {
       console.log("Set Updated");
       await getSets();
     } else {
-      console.log("Error updating sets", data);
+      console.log("Error updating sets");
     }
   };
   const addSetSQL = async (
@@ -335,17 +338,17 @@ function WorkoutOverview() {
       headers: { "Content-Type": "application/json" },
       method: "DELETE",
     });
-    const data = await response.json();
     if (response.ok) {
-      console.log("Succes deleting the set ", data);
+      console.log("Success deleting the set ");
       setSetDeleted(true);
     } else {
-      (console.log("Error deleting set"), data);
+      console.log("Error deleting set");
     }
   };
   useEffect(() => {
     if (!setDeleted) return;
     getSets();
+    setSetDeleted(false);
   }, [setDeleted]);
 
   //-------- APP BUILD -------------
@@ -475,51 +478,16 @@ function WorkoutOverview() {
               <OverviewBadges wid={id} />
             </CardContent>
           </Card>
-          <Card className="min-h-100 items-center flex flex-1 w-full shadow-lg shadow-primary mb-3">
-            <CardTitle>Volume Over Time</CardTitle>
-            <ResponsiveContainer className="w-full h-full px-5">
-              <AreaChart
-                width={800}
-                height={300}
-                data={[
-                  { date: "5/7", volume: 3500 },
-                  { date: "5/8", volume: 4000 },
-                  { date: "5/9", volume: 4000 },
-                  { date: "5/10", volume: 4100 },
-                  { date: "5/11", volume: 4200 },
-                  { date: "5/12", volume: 4300 },
-                  { date: "5/13", volume: 4400 },
-                  { date: "5/14", volume: 4500 },
-                ]}
-              >
-                <XAxis dataKey="date" niceTicks="snap125"></XAxis>
-
-                <YAxis
-                  width="auto"
-                  niceTicks="snap125"
-                  domain={["3000", "5000"]}
-                />
-
-                <Area
-                  className="w-full h-full"
-                  dataKey="volume"
-                  stroke="#d23f2f"
-                  fill="#d23f2f60"
-                ></Area>
-              </AreaChart>
-            </ResponsiveContainer>
-          </Card>
+          <OverviewChart />
           <div className="flex-row flex flex-1 justify-between gap-5 max-h-32">
             <TotalVolume workout={workout} />
-            <Card className=" items-center flex-1">Top Weight</Card>
-            <Card className=" items-center flex-1">
-              Most intense exercise (Set Volume)
-            </Card>
+            <TopWeight workout={workout} />
+            <OverviewIntense workout={workout} />
           </div>
           {/* Map exercises */}
           <div className="gap-5 flex flex-1 flex-col">
             {groupedSets.current.map((group, index) => (
-              <Card className="flex flex-col flex-1 mb-10">
+              <Card key={index} className="flex flex-col flex-1 mb-10">
                 <CardHeader className="justify-between flex-row flex-1">
                   {!editMode ? (
                     <CardTitle>{group[0].exercises.name}</CardTitle>
@@ -539,8 +507,12 @@ function WorkoutOverview() {
                     />
                   )}
                   <div className="flex gap-5">
-                    <Badge>Calf</Badge>
-                    <Badge>Z</Badge>
+                    {group[0].exercises.primary.length > 0 && (
+                      <Badge>{group[0].exercises.primary}</Badge>
+                    )}
+                    {group[0].exercises.secondary.length > 0 && (
+                      <Badge>{group[0].exercises.secondary}</Badge>
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent className="flex-1">
@@ -555,7 +527,10 @@ function WorkoutOverview() {
                     </TableHeader>
                     <TableBody className="jusitfy-center items-center">
                       {groupedSets.current[index].map((set, setIndex) => (
-                        <TableRow className="jusitfy-center items-center">
+                        <TableRow
+                          key={setIndex}
+                          className="jusitfy-center items-center"
+                        >
                           <TableCell className="jusitfy-center items-center">
                             <p className="editable"> {setIndex + 1}</p>
                           </TableCell>

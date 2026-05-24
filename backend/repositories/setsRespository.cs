@@ -140,18 +140,40 @@ namespace WorkoutTrackerAPI.models
                         FROM WSets
                         WHERE workoutID= @WID
                         ) 
-                        SELECT * FROM SetRnks 
+                        SELECT * FROM SetRnks
+                        JOIN Exercises
+                        ON exerciseID= eID 
                         WHERE row_num=1";
             var rows = await connection.QueryAsync(sql, new { WID = wID });
             return rows.Select((row) => new WSets
             {
                 Id = row.sID,
-                Exercises = { Id = row.exerciseID },
+                Exercises = new Exercises { Id = row.exerciseID, Name = row.eName },
                 reps = row.Reps,
                 weight = row.Weight,
                 wID = row.workoutID
             });
         }
+
+        public async Task<IEnumerable<dynamic>> getTopVolumeSet(int wid)
+        {
+            var connection = _db.CreateConnection();
+            var sql = @"SELECT eName, 
+                    Reps*Weight AS volume
+                    FROM WSets 
+                    JOIN Exercises 
+                    ON exerciseID= eID
+                    WHERE workoutID=@WID
+                    ORDER BY volume DESC
+                    LIMIT 1;";
+            var row = await connection.QueryAsync(sql, new { WID = wid });
+            return row.Select((row) => new
+            {
+                volume = row.volume,
+                ExerciseName = row.eName,
+            });
+        }
+
     }
 
 

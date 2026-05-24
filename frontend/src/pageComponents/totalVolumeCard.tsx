@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dumbbell } from "lucide-react";
 import { useEffect, useState } from "react";
 
 function TotalVolume(workout: any) {
@@ -27,11 +28,16 @@ function TotalVolume(workout: any) {
     console.log("Workout,", workout.workout.id);
   }, [workout]);
   return (
-    <Card className="items-center flex-1 ">
-      <CardHeader className="justify-center w-full">
+    <Card className="items-center gap-4 flex flex-1 py-2 ">
+      <CardHeader className="justify-center w-full ">
         <CardTitle>Total Volume</CardTitle>
       </CardHeader>
-      <CardContent>{total && total}</CardContent>
+      <CardContent className="flex-row flex items-center gap-3">
+        <div className="bg-primary/30 rounded-full flex p-2">
+          <Dumbbell color="var(--primary)" />
+        </div>
+        {total && total}
+      </CardContent>
     </Card>
   );
 }

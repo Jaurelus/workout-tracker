@@ -27,8 +27,10 @@ function EditExerciseModal({
 }: EditExerciseModalProp) {
   console.log(selectedExercise);
   const [eName, setEName] = useState(selectedExercise.name);
-  const [ePrimary, setEPrimary] = useState(selectedExercise.primary);
-  const [eSecondary, setESecondary] = useState(selectedExercise.secondary);
+  const [ePrimary, setEPrimary] = useState(selectedExercise.primary.join(","));
+  const [eSecondary, setESecondary] = useState(
+    selectedExercise.secondary.join(","),
+  );
   const [eTips, seteTips] = useState(selectedExercise.tips);
   const [changes, setChanges] = useState(false);
 
@@ -86,6 +88,7 @@ function EditExerciseModal({
             placeholder="Enter the name of the exercise"
             onChange={(e) => {
               setEName(e.target.value);
+              setChanges(true);
             }}
           />
         </Field>

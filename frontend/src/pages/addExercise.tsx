@@ -75,12 +75,11 @@ function Appp() {
         method: "DELETE",
       },
     );
-    const data = await response.json();
     if (response.ok) {
-      console.log("Success deleting", data);
+      console.log("Success deleting exercise", id);
       await getExercises();
     } else {
-      console.log("Error deleting exercise", data);
+      console.log("Error deleting exercise", id);
     }
   };
 
