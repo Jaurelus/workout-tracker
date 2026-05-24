@@ -15,5 +15,42 @@
   - Track exercises, sets, weight, and reps
   - View and edit past workouts
   - See volume and intensity stats per session
+
+## Instructions
+
+## Installation
+``` bash
+
+
+#Clone into repo and make working directory
+git clone
+cd mern-group4
+
+#Install dependencies
+npm install
+```
+## Usage
+``` bash
+
+
+#Activate the backend
+cd backend/
+dotnet watch
+
+#Activate the frontend
+cd ../frontend
+npm run dev 
+```
+<br/>
   
   
+![Dashboard](https://github.com/user-attachments/assets/4b835f05-166c-4895-b3f6-eb558a993e6a)
+<br/>
+
+![Log New Workouts](https://github.com/user-attachments/assets/a21af9fe-6649-411a-bd7f-36de347ee365)
+<br/>
+
+![Add New Exercises](https://github.com/user-attachments/assets/93cd156b-a883-4810-bf31-60be60d1a9e7)
+<br/>
+
+![View Past Workouts](https://github.com/user-attachments/assets/e562f36d-01f2-4901-96e9-449fd5916bfd)
