@@ -31,7 +31,7 @@ function OverviewIntense({ workout }: { workout: any }) {
   }, [workout]);
   //--------- APP BUILD
   return (
-    <Card className=" items-center gap-4 flex flex-1 py-2">
+    <Card className=" items-center gap-4 flex flex-1 py-2   ">
       <CardHeader className="justify-center w-full">
         <CardTitle>Most Intense Set</CardTitle>
       </CardHeader>
