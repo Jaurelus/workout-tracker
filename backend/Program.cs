@@ -49,7 +49,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
+app.UseMiddleware<MiddlewareRepository>();
 
 app.UseHttpsRedirection();
 
@@ -242,6 +242,7 @@ app.UseHttpsRedirection();
             await repo.logoutUser(cookie);
             //Now write the code to handle the cookie stuff opposite of login
             response.Cookies.Delete("session");
+            return Results.Ok();
         });
     }
 
