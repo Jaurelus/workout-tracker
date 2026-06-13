@@ -1,11 +1,11 @@
 using Dapper;
-using WorkoutTrackerAPI;
+using WorkoutTrackerAPI.models;
 using System.Text.Json;
 using Mysqlx.Resultset;
 using System.Data;
 using System.Globalization;
 
-namespace WorkoutTrackerAPI.models
+namespace WorkoutTrackerAPI.repositories
 {
     public class SetsRepository
     {
@@ -18,7 +18,7 @@ namespace WorkoutTrackerAPI.models
         //Task
         public async Task addSet(WSets set)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
 
             var sql = @"
             INSERT INTO WSets(exerciseID, Reps, Weight, workoutID)
@@ -37,7 +37,7 @@ namespace WorkoutTrackerAPI.models
 
         public async Task updateSet(WSets set, int? totalSets)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
 
             if (totalSets != null)
             {
@@ -81,7 +81,7 @@ namespace WorkoutTrackerAPI.models
         public async Task<IEnumerable<WSets>> getSetByWID(int wid)
 
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"SELECT w.sID, w.Reps, w.Weight, w.workoutID,
                         e.eID as exerciseID, e.eName, e.primaryMuscle, e.secondaryMuscle, e.tips
                         FROM WSets w
@@ -110,7 +110,7 @@ namespace WorkoutTrackerAPI.models
         }
         public async Task<int> getTotalSetsForWorkout(int wid)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"SELECT COUNT(*) FROM WSets
                         WHERE workoutID = @WID";
             int count = await connection.ExecuteScalarAsync<int>(sql, new
@@ -124,7 +124,7 @@ namespace WorkoutTrackerAPI.models
 
         public async Task deleteSet(int sID)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"DELETE FROM WSets
                         WHERE sID=@SID";
             await connection.ExecuteAsync(sql, new { SID = sID });
@@ -133,7 +133,7 @@ namespace WorkoutTrackerAPI.models
 
         public async Task<IEnumerable<WSets>> getTopSet(int wID)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"WITH SetRnks AS (
                         SELECT *, 
                         ROW_NUMBER() OVER(PARTITION BY exerciseID ORDER BY Weight DESC) AS row_num
@@ -157,7 +157,7 @@ namespace WorkoutTrackerAPI.models
 
         public async Task<IEnumerable<dynamic>> getTopVolumeSet(int wid)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"SELECT eName, 
                     Reps*Weight AS volume
                     FROM WSets 

@@ -15,7 +15,7 @@ namespace WorkoutTrackerAPI
         public async Task InvokeAsync(HttpRequest req, HttpContext context)
         {
 
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             //Get user sent cookie
             var cookie = req.Cookies["session"];
             var sql = @"SELECT userID FROM Sessions

@@ -20,7 +20,7 @@ namespace WorkoutTrackerAPI.repositories
         }
         public async Task registerUser(User user)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"INSERT INTO Users (firstName, lastName, email, passHash)
                         VALUES (@F, @L, @E, @P )";
             await connection.ExecuteAsync(sql, new { F = user.firstName, L = user.lastName, E = user.email, P = BC.HashPassword(user.passHash) });
@@ -28,11 +28,11 @@ namespace WorkoutTrackerAPI.repositories
 
         public async Task<User> getUser(string email)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"SELECT * FROM Users
                         WHERE email=@Email";
             var row = await connection.QueryFirstOrDefaultAsync(sql, new { Email = email });
-            if (row == null) return null;
+            if (row == null) return new User { };
             return new User
             {
                 ID = row.uID,
@@ -52,7 +52,7 @@ namespace WorkoutTrackerAPI.repositories
 
         public async Task logoutUser(string token)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
 
 
             var sql = @"DELETE FROM Sessions
@@ -64,7 +64,7 @@ namespace WorkoutTrackerAPI.repositories
 
         public async Task saveToken(Sessions session)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"INSERT INTO Sessions(token, userID)
                         VALUES (@TOKEN, @UID)";
             await connection.ExecuteAsync(sql, new { TOKEN = session.token, UID = session.userID });

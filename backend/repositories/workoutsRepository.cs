@@ -17,7 +17,7 @@ namespace WorkoutTrackerAPI
 
         public async Task addWorkout(Workouts workout)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"INSERT INTO Workouts (wDate, focus)
                         VALUES (@Date, @Focus)";
             await connection.ExecuteAsync(sql, new
@@ -29,7 +29,7 @@ namespace WorkoutTrackerAPI
 
         public async Task<IEnumerable<Workouts>> getWorkouts()
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"SELECT * FROM Workouts
                         ORDER BY wDate DESC";
             var rows = await connection.QueryAsync(sql);
@@ -42,7 +42,7 @@ namespace WorkoutTrackerAPI
         }
         public async Task<Workouts?> getOneWorkout(int id)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var row = await connection.QueryFirstOrDefaultAsync("SELECT * FROM Workouts WHERE wID = @ID", new { ID = id });
             if (row == null) return null;
             return new Workouts
@@ -56,7 +56,7 @@ namespace WorkoutTrackerAPI
 
         public async Task<Workouts> getLatestWorkout()
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"SELECT * FROM Workouts
                     ORDER BY wID DESC 
                     LIMIT 1";
@@ -74,7 +74,7 @@ namespace WorkoutTrackerAPI
 
         public async Task<IEnumerable<Workouts>> getWeekWorkouts(string weekStart, string weekEnd)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
 
             var sql = @"SELECT * FROM Workouts
                         WHERE wDate BETWEEN @WS and @WE";
@@ -93,7 +93,7 @@ namespace WorkoutTrackerAPI
 
         public async Task editWorkout(Workouts workout)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"UPDATE Workouts
                         SET wDate = @DATE, focus =@FOCUS
                         WHERE wID = @WID";
@@ -101,7 +101,7 @@ namespace WorkoutTrackerAPI
         }
         public async Task<IEnumerable<dynamic>> getWorkoutVolumebyExercise(int wid)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"WITH eVol AS(
                         SELECT *, SUM(Weight*Reps) 
                         OVER (PARTITION BY exerciseID) AS setVolume
@@ -122,7 +122,7 @@ namespace WorkoutTrackerAPI
 
         public async Task<int> getWorkoutVolume(int wid)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"SELECT SUM(Weight*Reps) FROM WSets
                     WHERE workoutID = @WID";
             var res = await connection.ExecuteScalarAsync<int>(sql, new { wid = wid });
@@ -130,7 +130,7 @@ namespace WorkoutTrackerAPI
         }
         public async Task<IEnumerable<dynamic>> getVolumesbyFocus(string? focus)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = "";
             if (focus == null)
             {
@@ -178,7 +178,7 @@ namespace WorkoutTrackerAPI
 
         public async Task<IEnumerable<string>> getTopFoci()
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"SELECT focus
                         FROM Workouts
                         GROUP BY focus
@@ -187,9 +187,9 @@ namespace WorkoutTrackerAPI
             return await connection.QueryAsync<string>(sql);
 
         }
-        public async Task<IEnumerable<dynamic>> getMonthWorkouts(string monthStart, string monthEnd)
+        public async Task<IEnumerable<string>> getMonthWorkouts(string monthStart, string monthEnd)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"SELECT wDate FROM Workouts
                         WHERE wDate>= @BEGIN AND wDate<@END";
             return await connection.QueryAsync<string>(sql, new
@@ -200,7 +200,7 @@ namespace WorkoutTrackerAPI
         }
         public async Task deleteWorkout(int wid)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"DELETE FROM Workouts 
                         WHERE wID= @WID";
             await connection.ExecuteAsync(sql, new { WID = wid });
