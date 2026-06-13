@@ -1,10 +1,13 @@
 using System.Data;
 using System.Data.Common;
+using System.Net;
 using System.Numerics;
 using Microsoft.AspNetCore.Mvc;
 using WorkoutTrackerAPI;
 using WorkoutTrackerAPI.models;
 using WorkoutTrackerAPI.repositories;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +24,8 @@ builder.Services.AddCors(options =>
             policy
                 .WithOrigins("http://localhost:5173", "http://localhost:3000")
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials();
         });
 });
 
@@ -29,6 +33,8 @@ builder.Services.AddSingleton<DbConnectionFactory>();
 builder.Services.AddScoped<ExercisesRepository>();
 builder.Services.AddScoped<SetsRepository>();
 builder.Services.AddScoped<WorkoutsRepository>();
+builder.Services.AddScoped<UsersRepository>();
+
 
 
 
@@ -43,6 +49,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
 
 app.UseHttpsRedirection();
 
@@ -197,8 +204,49 @@ app.UseHttpsRedirection();
             await repo.deleteWorkout(wid);
             return Results.Ok();
         });
+
+        //User routes
+        app.MapPost("/register", async (UsersRepository repo, User user) =>
+        {
+            await repo.registerUser(user);
+            return Results.Created();
+        });
+        //----Login code ( cookie handling)
+        app.MapPost("/login", async (UsersRepository repo, HttpResponse response, LoginReq req) =>
+        {
+            var valid = await repo.loginUser(req.Email, req.PassHash);
+            if (valid)
+            {
+                //Cookies
+
+                var token = Guid.NewGuid().ToString();
+                response.Cookies.Append("session", token, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTimeOffset.UtcNow.AddDays(7)
+                });
+                // Getting info to store session in SQL
+
+                var row = await repo.getUser(req.Email);
+                await repo.saveToken(new Sessions { token = token, userID = row.ID });
+                return Results.Ok(new { message = "Logged in" });
+
+            }
+            else return Results.Unauthorized(); ;
+        });
+        app.MapPost("/logout", async (UsersRepository repo, HttpResponse response, HttpRequest req) =>
+        {
+            var cookie = req.Cookies["session"];
+            await repo.logoutUser(cookie);
+            //Now write the code to handle the cookie stuff opposite of login
+            response.Cookies.Delete("session");
+        });
     }
 
 }
 app.Run();
+
+record LoginReq(string Email, string PassHash);
 
