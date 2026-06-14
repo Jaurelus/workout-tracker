@@ -41,7 +41,7 @@ namespace WorkoutTrackerAPI.repositories
         public async Task<bool> loginUser(string email, string password)
         {
             var expectedUser = await getUser(email);
-            if (expectedUser == null) return false;
+            if (expectedUser.email == "") return false;
             return BC.Verify(password, expectedUser.passHash);
 
         }

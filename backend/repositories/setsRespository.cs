@@ -2,7 +2,6 @@ using Dapper;
 using WorkoutTrackerAPI.models;
 using System.Text.Json;
 
-
 namespace WorkoutTrackerAPI.repositories
 {
     public class SetsRepository
@@ -13,34 +12,32 @@ namespace WorkoutTrackerAPI.repositories
             _db = db;
         }
 
-        //Task
-        public async Task addSet(WSets set)
+        public async Task addSet(WSets set, int? userID)
         {
             using var connection = _db.CreateConnection();
-
             var sql = @"
-            INSERT INTO WSets(exerciseID, Reps, Weight, workoutID)
-            SELECT eID, @Reps, @Weight, @WID
+            INSERT INTO WSets(exerciseID, Reps, Weight, workoutID, userID)
+            SELECT eID, @Reps, @Weight, @WID, @UID
             FROM Exercises WHERE eName = @Name";
-
             await connection.ExecuteAsync(sql, new
             {
                 Reps = set.reps,
                 Weight = set.weight,
                 Name = set.Exercises?.Name,
-                WID = set.wID
+                WID = set.wID,
+                UID = userID
             });
-
         }
 
-        public async Task updateSet(WSets set, int? totalSets)
+        public async Task updateSet(WSets set, int? totalSets, int? userID)
         {
             using var connection = _db.CreateConnection();
 
             if (totalSets != null)
             {
-                var sql = @"UPDATE WSets 
+                var sql = @"UPDATE WSets
                            SET exerciseID= @EID, Reps=@Reps, Weight=@Weight
+                           WHERE userID = @UID
                            ORDER BY sID DESC
                            LIMIT @N";
                 await connection.ExecuteAsync(sql, new
@@ -48,48 +45,38 @@ namespace WorkoutTrackerAPI.repositories
                     EID = set.Exercises.Id,
                     Reps = set.reps,
                     Weight = set.weight,
-                    N = totalSets
+                    N = totalSets,
+                    UID = userID
                 });
-
             }
-            //----- VIEW
-            //find rows with an = wID, sorted by ID; update
+
             if (totalSets == null)
             {
                 var sql = @"UPDATE WSets
                             SET exerciseID= @EID, Reps=@Reps, Weight=@Weight
-                            WHERE workoutID = @WID AND sID= @SID";
-
-
+                            WHERE workoutID = @WID AND sID = @SID AND userID = @UID";
                 await connection.ExecuteAsync(sql, new
                 {
                     EID = set.Exercises.Id,
                     Reps = set.reps,
                     Weight = set.weight,
                     WID = set.wID,
-                    SID = set.Id
+                    SID = set.Id,
+                    UID = userID
                 });
             }
         }
 
-
-
-
-
-        public async Task<IEnumerable<WSets>> getSetByWID(int wid)
-
+        public async Task<IEnumerable<WSets>> getSetByWID(int wid, int? userID)
         {
             using var connection = _db.CreateConnection();
             var sql = @"SELECT w.sID, w.Reps, w.Weight, w.workoutID,
                         e.eID as exerciseID, e.eName, e.primaryMuscle, e.secondaryMuscle, e.tips
                         FROM WSets w
-                       JOIN Exercises e ON w.exerciseID=e.eID
-                        WHERE workoutID = @WID
+                        JOIN Exercises e ON w.exerciseID=e.eID
+                        WHERE w.workoutID = @WID AND w.userID = @UID
                         ORDER BY exerciseID";
-            var rows = await connection.QueryAsync(sql, new
-            {
-                WID = wid
-            });
+            var rows = await connection.QueryAsync(sql, new { WID = wid, UID = userID });
             return rows.Select((row) => new WSets
             {
                 Id = row.sID,
@@ -106,43 +93,35 @@ namespace WorkoutTrackerAPI.repositories
                 wID = row.workoutID
             });
         }
-        public async Task<int> getTotalSetsForWorkout(int wid)
+
+        public async Task<int> getTotalSetsForWorkout(int wid, int? userID)
         {
             using var connection = _db.CreateConnection();
-            var sql = @"SELECT COUNT(*) FROM WSets
-                        WHERE workoutID = @WID";
-            int count = await connection.ExecuteScalarAsync<int>(sql, new
-            {
-                WID = wid,
-            });
+            var sql = @"SELECT COUNT(*) FROM WSets WHERE workoutID = @WID AND userID = @UID";
+            int count = await connection.ExecuteScalarAsync<int>(sql, new { WID = wid, UID = userID });
             return count;
-
-
         }
 
-        public async Task deleteSet(int sID)
+        public async Task deleteSet(int sID, int? userID)
         {
             using var connection = _db.CreateConnection();
-            var sql = @"DELETE FROM WSets
-                        WHERE sID=@SID";
-            await connection.ExecuteAsync(sql, new { SID = sID });
-
+            var sql = @"DELETE FROM WSets WHERE sID = @SID AND userID = @UID";
+            await connection.ExecuteAsync(sql, new { SID = sID, UID = userID });
         }
 
-        public async Task<IEnumerable<WSets>> getTopSet(int wID)
+        public async Task<IEnumerable<WSets>> getTopSet(int wID, int? userID)
         {
             using var connection = _db.CreateConnection();
             var sql = @"WITH SetRnks AS (
-                        SELECT *, 
+                        SELECT *,
                         ROW_NUMBER() OVER(PARTITION BY exerciseID ORDER BY Weight DESC) AS row_num
                         FROM WSets
-                        WHERE workoutID= @WID
-                        ) 
+                        WHERE workoutID = @WID AND userID = @UID
+                        )
                         SELECT * FROM SetRnks
-                        JOIN Exercises
-                        ON exerciseID= eID 
-                        WHERE row_num=1";
-            var rows = await connection.QueryAsync(sql, new { WID = wID });
+                        JOIN Exercises ON exerciseID = eID
+                        WHERE row_num = 1";
+            var rows = await connection.QueryAsync(sql, new { WID = wID, UID = userID });
             return rows.Select((row) => new WSets
             {
                 Id = row.sID,
@@ -153,26 +132,22 @@ namespace WorkoutTrackerAPI.repositories
             });
         }
 
-        public async Task<IEnumerable<dynamic>> getTopVolumeSet(int wid)
+        public async Task<IEnumerable<dynamic>> getTopVolumeSet(int wid, int? userID)
         {
             using var connection = _db.CreateConnection();
-            var sql = @"SELECT eName, 
+            var sql = @"SELECT eName,
                     Reps*Weight AS volume
-                    FROM WSets 
-                    JOIN Exercises 
-                    ON exerciseID= eID
-                    WHERE workoutID=@WID
+                    FROM WSets
+                    JOIN Exercises ON exerciseID = eID
+                    WHERE workoutID = @WID AND WSets.userID = @UID
                     ORDER BY volume DESC
-                    LIMIT 1;";
-            var row = await connection.QueryAsync(sql, new { WID = wid });
+                    LIMIT 1";
+            var row = await connection.QueryAsync(sql, new { WID = wid, UID = userID });
             return row.Select((row) => new
             {
                 volume = row.volume,
                 ExerciseName = row.eName,
             });
         }
-
     }
-
-
 }

@@ -12,15 +12,15 @@ namespace WorkoutTrackerAPI
             _next = next;
             _db = db;
         }
-        public async Task InvokeAsync(HttpRequest req, HttpContext context)
+        public async Task InvokeAsync(HttpContext context)
         {
 
             using var connection = _db.CreateConnection();
             //Get user sent cookie
-            var cookie = req.Cookies["session"];
+            var cookie = context.Request.Cookies["session"];
             var sql = @"SELECT userID FROM Sessions
                         WHERE token =@C";
-            var id = await connection.QueryFirstOrDefaultAsync<int?>(sql, new { C = cookie });
+
             var path = context.Request.Path.Value;
             if (path == "/login" || path == "/register")
             {
@@ -28,11 +28,16 @@ namespace WorkoutTrackerAPI
                 return;
             }
 
+            var id = await connection.QueryFirstOrDefaultAsync<int?>(sql, new { C = cookie });
+
+
             //Compare to store token
             if (id != null)
             {
                 //User authenticated
                 //pass next
+                context.Items["userID"] = id;
+
                 await _next(context);
             }
             else
