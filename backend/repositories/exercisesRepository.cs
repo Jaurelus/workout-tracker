@@ -2,6 +2,7 @@ using Dapper;
 using WorkoutTrackerAPI.models;
 using System.Text.Json;
 
+
 namespace WorkoutTrackerAPI.repositories
 {
     public class ExercisesRepository
@@ -28,14 +29,14 @@ namespace WorkoutTrackerAPI.repositories
             });
         }
 
-        // id == null or 0 returns all exercises for the user
+        // id == null returns all exercises for the user (including globals where userID = 0)
         public async Task<IEnumerable<Exercises>> getExercises(int? id, int? userID)
         {
             using var connection = _db.CreateConnection();
-            if (id != null && id != 0)
+            if (id != null)
             {
                 var row = await connection.QueryFirstOrDefaultAsync(
-                    @"SELECT * FROM Exercises WHERE eID = @id AND userID = @UID",
+                    @"SELECT * FROM Exercises WHERE eID = @id AND (userID = @UID OR userID = 0)",
                     new { id = id, UID = userID });
                 return new List<Exercises>
                 {
@@ -52,8 +53,9 @@ namespace WorkoutTrackerAPI.repositories
             else
             {
                 var rows = await connection.QueryAsync(
-                    "SELECT * FROM Exercises WHERE userID = @UID",
+                    @"SELECT * FROM Exercises WHERE userID = @UID OR userID = 0",
                     new { UID = userID });
+
                 return rows.Select(row => new Exercises
                 {
                     Id = row.eID,
@@ -68,14 +70,14 @@ namespace WorkoutTrackerAPI.repositories
         public async Task<IEnumerable<string>> getExerciseNames(int? userID)
         {
             using var connection = _db.CreateConnection();
-            var sql = @"SELECT eName FROM Exercises WHERE userID = @UID";
+            var sql = @"SELECT eName FROM Exercises WHERE userID = @UID OR userID = 0";
             return await connection.QueryAsync<string>(sql, new { UID = userID });
         }
 
         public async Task<int> exerciseExists(string exerciseName, int? userID)
         {
             using var connection = _db.CreateConnection();
-            var sql = @"SELECT eID FROM Exercises WHERE eName = @name AND userID = @UID";
+            var sql = @"SELECT eID FROM Exercises WHERE eName = @name AND (userID = @UID OR userID = 0)";
             var count = await connection.ExecuteScalarAsync<int>(sql, new { name = exerciseName, UID = userID });
             return count >= 1 ? count : 0;
         }

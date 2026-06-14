@@ -14,7 +14,7 @@ namespace WorkoutTrackerAPI
         }
         public async Task InvokeAsync(HttpContext context)
         {
-
+            string[] publicRoutes = { "/login", "/register", "/getExercises", "/exerciseExists" };
             using var connection = _db.CreateConnection();
             //Get user sent cookie
             var cookie = context.Request.Cookies["session"];
@@ -22,7 +22,7 @@ namespace WorkoutTrackerAPI
                         WHERE token =@C";
 
             var path = context.Request.Path.Value;
-            if (path == "/login" || path == "/register")
+            if (publicRoutes.Contains(path))
             {
                 await _next(context);
                 return;
