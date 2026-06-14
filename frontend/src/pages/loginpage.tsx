@@ -47,6 +47,7 @@ function LoginPage() {
               <Field>
                 <FieldLabel>E-mail</FieldLabel>
                 <Input
+                  className="border-input"
                   type="email"
                   onInput={(e) => {
                     setEmail(e.target.value);
@@ -56,6 +57,7 @@ function LoginPage() {
               <Field>
                 <FieldLabel>Password</FieldLabel>
                 <Input
+                  className="border-input"
                   type="password"
                   onInput={(e) => {
                     setPW(e.target.value);
