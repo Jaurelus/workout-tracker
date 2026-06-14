@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 function LastWorkout() {
@@ -14,10 +15,9 @@ function LastWorkout() {
     });
     const data = await response.json();
     if (response.ok) {
-      console.log("Success retrieiving last wokrout", data);
       setWorkout(data);
     } else {
-      console.log("Error retrieiving last wokrout", data);
+      toast.error("Failed to load last workout");
     }
   };
   useEffect(() => {
@@ -32,10 +32,9 @@ function LastWorkout() {
     );
     const data = await response.json();
     if (response.ok) {
-      console.log("Success getting volumes by exercise", data);
       setVolumes(data);
     } else {
-      console.log("Error getting volumes by exercise ", data);
+      toast.error("Failed to load exercise volumes");
     }
   };
   useEffect(() => {

@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 function Consistency() {
   const [weekWorkouts, setWeekWorkouts] = useState(null);
@@ -31,9 +32,8 @@ function Consistency() {
     );
     const data = await response.json();
     if (response.ok) {
-      console.log("Success getting Workouts for the week ", data);
       setWeekWorkouts(data);
-    } else console.log("Error getting workouts for the week");
+    } else toast.error("Failed to load weekly workouts");
   };
   useEffect(() => {
     //Find the beginning and end of the week based
@@ -55,7 +55,6 @@ function Consistency() {
   }, []);
   useEffect(() => {
     if (!weekWorkouts) return;
-    console.log("Days", mapDays());
     setWorkDays(mapDays());
   }, [weekWorkouts]);
   //----------- APP BUILD ------------

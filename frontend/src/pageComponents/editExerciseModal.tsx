@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { SendHorizonal } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface EditExerciseModalProp {
   visibility: OnBeforeUnloadEventHandlerNonNull;
@@ -24,7 +25,6 @@ function EditExerciseModal({
   changeVisibility,
   selectedExercise,
 }: EditExerciseModalProp) {
-  console.log(selectedExercise);
   const [eName, setEName] = useState(selectedExercise.name);
   const [ePrimary, setEPrimary] = useState(selectedExercise.primary.join(","));
   const [eSecondary, setESecondary] = useState(
@@ -50,10 +50,8 @@ function EditExerciseModal({
       },
     );
     const data = await response.json();
-    if (response.ok) {
-      console.log("Success editing exercise", data);
-    } else {
-      console.log("Error editing exercise please try again");
+    if (!response.ok) {
+      toast.error("Failed to edit exercise, please try again");
     }
   };
   //--------------- APP BUILD ---------------

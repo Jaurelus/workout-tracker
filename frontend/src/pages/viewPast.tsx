@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import "../App.css";
 import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
@@ -28,7 +29,7 @@ function ViewPast() {
     if (response.ok) {
       setWorkouts(data);
     } else {
-      console.log("Error " + data);
+      toast.error("Failed to load workouts");
     }
   };
   useEffect(() => {
@@ -54,7 +55,6 @@ function ViewPast() {
     );
     const data = await response.json();
     if (response.ok) {
-      console.log("Set", data);
       setSetCounts((prev) => ({ ...prev, [wID]: data }));
     }
   };
@@ -69,8 +69,6 @@ function ViewPast() {
     );
     const data = await response.json();
     if (response.ok) {
-      console.log("Exercise", data);
-
       setExerciseCounts((prev) => ({ ...prev, [wID]: data }));
     }
   };

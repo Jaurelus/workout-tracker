@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Area, AreaChart, XAxis, YAxis } from "recharts";
 
 function Chart() {
@@ -27,10 +28,9 @@ function Chart() {
     );
     const data = await response.json();
     if (response.ok) {
-      console.log("Sucess getting volumes by focus", data);
       setVolumes(data);
     } else {
-      console.log("Error getting volumes by focus for chart quadrant", data);
+      toast.error("Failed to load chart data");
     }
   };
   const getTopFoci = async () => {
@@ -41,10 +41,9 @@ function Chart() {
     });
     const data = await response.json();
     if (response.ok) {
-      console.log("Success getting top foci");
       setTopFoci(data);
     } else {
-      console.log("Error getting top foci");
+      toast.error("Failed to load focus data");
     }
   };
   useEffect(() => {

@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dumbbell } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 function TotalVolume(workout: any) {
   const [total, setTotal] = useState(null);
@@ -16,10 +17,9 @@ function TotalVolume(workout: any) {
     );
     const data = await response.json();
     if (response.ok) {
-      console.log("Success getting total volume", data);
       setTotal(data);
     } else {
-      console.log("Error getting total volume", data);
+      toast.error("Failed to load total volume");
     }
   };
   useEffect(() => {

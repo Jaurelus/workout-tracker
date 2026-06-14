@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Trophy } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 function TopWeight(workout: any) {
   const [topweight, settopweight] = useState(null);
@@ -20,10 +21,9 @@ function TopWeight(workout: any) {
     });
     const data = await response.json();
     if (response.ok) {
-      console.log("TOP WEIGHT ----------", data);
       setTopSetE(data[0].exercises.name);
       settopweight(data[0].weight);
-    } else console.log(data);
+    } else toast.error("Failed to load top weight");
   };
   useEffect(() => {
     if (!workout) return;

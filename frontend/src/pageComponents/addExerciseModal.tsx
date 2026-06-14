@@ -12,6 +12,7 @@ import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface AddExerciseModalProp {
   visibility: OnBeforeUnloadEventHandlerNonNull;
@@ -40,10 +41,8 @@ function AddExerciseModal({
       }),
     });
     const data = await response.json();
-    if (response.status == 201) {
-      console.log("Success\n", data);
-    } else {
-      console.log(response.body);
+    if (!response.ok) {
+      toast.error("Failed to add exercise");
     }
   };
 

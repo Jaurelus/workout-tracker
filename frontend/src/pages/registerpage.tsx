@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 function RegisterPage() {
   const [fName, setFName] = useState("");
@@ -78,7 +79,7 @@ function RegisterPage() {
 
     if (response.ok) {
       navigate("/login");
-    } else console.log("Error register user");
+    } else toast.error("Error creating account");
   };
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">

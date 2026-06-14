@@ -11,6 +11,7 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -31,7 +32,7 @@ function LoginPage() {
     if (response.ok) {
       navigate("/home");
     } else {
-      console.log("Error logging in ");
+      toast.error("Invalid email or password");
     }
   };
   //------------- APP BUILD ---------------

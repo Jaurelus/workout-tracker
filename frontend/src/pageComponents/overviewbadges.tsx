@@ -4,12 +4,8 @@ import { useEffect, useState } from "react";
 function OverviewBadges({ wid }: { wid: Number }) {
   const [totalExercises, setTotalExercises] = useState(0);
   const [totalSets, setTotalSets] = useState(0);
-  console.log("tHE WIDS", wid);
-
   const getTotalSetCount = async (wID: Number) => {
     if (!wID) return;
-    console.log("SEts resp---------------------");
-
     const response = await fetch(
       `http://localhost:5117/getTotalSets/?wID=${wid}`,
       {
@@ -20,7 +16,6 @@ function OverviewBadges({ wid }: { wid: Number }) {
     );
     const data = await response.json();
     if (response.ok) {
-      console.log("Set", data);
       setTotalSets(data);
     }
   };
@@ -37,8 +32,6 @@ function OverviewBadges({ wid }: { wid: Number }) {
     );
     const data = await response.json();
     if (response.ok) {
-      console.log("Exercise", data);
-
       setTotalExercises(data);
     }
   };

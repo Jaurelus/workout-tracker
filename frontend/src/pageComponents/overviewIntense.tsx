@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Flame } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 function OverviewIntense({ workout }: { workout: any }) {
   const [topSet, setTopSet] = useState();
@@ -19,14 +20,11 @@ function OverviewIntense({ workout }: { workout: any }) {
     const data = await response.json();
     if (response.ok) {
       setTopSet(data[0]);
-      console.log("INTENSE ------");
-      console.log(data[0]);
-    } else console.log(data[0]);
+    } else toast.error("Failed to load most intense set");
   };
 
   useEffect(() => {
     if (!workout) return;
-    console.log(workout.id);
     getTopSet(workout.id);
   }, [workout]);
   //--------- APP BUILD

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import "../App.css";
 import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
@@ -45,7 +46,6 @@ function Appp() {
     });
     const data = await response.json();
     if (response.status == 200) {
-      console.log("Success", data);
       setExercises(data);
     }
   };
@@ -63,10 +63,9 @@ function Appp() {
       },
     );
     if (response.ok) {
-      console.log("Success deleting exercise", id);
       await getExercises();
     } else {
-      console.log("Error deleting exercise", id);
+      toast.error("Failed to delete exercise");
     }
   };
 

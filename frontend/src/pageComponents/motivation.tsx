@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 function Motivation() {
   const [workoutDates, setWorkoutDates] = useState(null);
@@ -34,9 +35,8 @@ function Motivation() {
     );
     const data = await response.json();
     if (response.ok) {
-      console.log("Success getting workouts of month", data);
       setWorkoutDates(data);
-    } else console.log("Error getting workouts of month", data);
+    } else toast.error("Failed to load monthly workouts");
   };
   const mapFirstDay = () => {
     let first = new Date();
@@ -51,7 +51,6 @@ function Motivation() {
   const mapDates = () => {
     let sliced = workoutDates.map((workout) => Number(workout.slice(3, 5)));
     setMappedDates(sliced);
-    console.log("SLICED : ", sliced);
   };
   useEffect(() => {
     if (!workoutDates) return;

@@ -1,5 +1,6 @@
 import { Card, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   PolarAngleAxis,
   PolarGrid,
@@ -19,10 +20,9 @@ function OverviewChart({ id }: { id: number }) {
     );
     const data = await response.json();
     if (response.ok) {
-      console.log("Success sets ", data);
       setSets(data);
     } else {
-      console.log("Error", data);
+      toast.error("Failed to load chart data");
     }
   };
   useEffect(() => {
@@ -43,8 +43,6 @@ function OverviewChart({ id }: { id: number }) {
         return total;
       }, {}),
     );
-    console.log("Chart shi", chrtData);
-
     setchrtData(chrtData);
   }, [sets]);
 

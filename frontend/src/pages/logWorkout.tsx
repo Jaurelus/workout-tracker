@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import "../App.css";
 import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
@@ -121,10 +122,8 @@ function LogWorkout() {
       }),
     });
     const data = await response.json();
-    if (response.ok) {
-      console.log(" Add SQL Success\n", data);
-    } else {
-      console.log(response.body);
+    if (!response.ok) {
+      toast.error("Failed to add exercise");
     }
   };
 
@@ -142,7 +141,7 @@ function LogWorkout() {
     if (response.ok) {
       return data;
     } else {
-      console.log("error" + data);
+      toast.error("Exercise not found");
     }
   };
 
@@ -198,10 +197,8 @@ function LogWorkout() {
       }),
     });
     const data = await response.json();
-    if (response.status == 201) {
-      console.log("Success logging SET SQL\n", data);
-    } else {
-      console.log("Error logging set", data);
+    if (!response.ok) {
+      toast.error("Failed to log set");
     }
   };
 
@@ -218,10 +215,8 @@ function LogWorkout() {
     });
     const data = await response.json();
     if (response.ok) {
-      console.log("Successful workout log ");
-      console.log(data);
       setRecentData(data);
-    } else console.log("Error " + data);
+    } else toast.error("Failed to log workout");
   };
 
   const getLatestWorkoutSQL = async () => {
@@ -232,10 +227,9 @@ function LogWorkout() {
     });
     const data = await response.json();
     if (response.ok) {
-      console.log("Latest Workout", data);
       setLatestWorkout(data);
     } else {
-      console.log(data);
+      toast.error("Failed to get latest workout");
     }
   };
   //------------- APP BUILD ------------
@@ -301,23 +295,15 @@ function LogWorkout() {
                         onInput={(e) => {
                           let str = e.target.value;
                           setFocusInput(str);
-                          let filtered = foci.filter((item) => {
-                            if (
-                              item.toLowerCase().includes(str.toLowerCase())
-                            ) {
-                              console.log("Yes", str, item);
-                            }
-                          });
+                          let filtered = foci.filter((item) =>
+                            item.toLowerCase().includes(str.toLowerCase())
+                          );
                           setFilteredList(filtered);
-
-                          console.log(filtered + "\n");
                           checkAnyEmpty();
                         }}
                         onSubmit={(e) => {
                           e.preventDefault();
                           setFocusInput(e.target.value);
-                          console.log("Fil");
-                          console.log("Hi");
                         }}
                       ></ComboboxInput>
                     </form>
@@ -397,7 +383,6 @@ function LogWorkout() {
                           <ComboboxList>
                             <ComboboxItem
                               onSelect={(e) => {
-                                console.log(e);
                                 wsetExercises.current[exercise.key] =
                                   e.target.value;
                               }}

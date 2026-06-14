@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -154,7 +155,6 @@ function WorkoutOverview() {
   useEffect(() => {
     groupSets();
     forceUpdate((prev) => prev + 1);
-    console.log(groupedSets.current);
   }, [sets]);
 
   //--------- API CALL -----------
@@ -171,7 +171,7 @@ function WorkoutOverview() {
     if (response.ok) {
       return data;
     } else {
-      console.log("error" + data);
+      toast.error("Exercise not found");
     }
   };
   const addExerciseSQL = async (eName) => {
@@ -187,19 +187,13 @@ function WorkoutOverview() {
       }),
     });
     const data = await response.json();
-    if (response.ok) {
-      console.log(" Add SQL Success\n", data);
-    } else {
-      console.log(response.body);
+    if (!response.ok) {
+      toast.error("Failed to add exercise");
     }
   };
 
   const getWorkoutInfo = async () => {
-    console.log("ID");
-
     if (!id) return;
-    console.log(id, typeof id);
-
     const response = await fetch(
       `http://localhost:5117/getOneWorkout?id=${id}`,
       {
@@ -210,10 +204,9 @@ function WorkoutOverview() {
     );
     const data = await response.json();
     if (response.ok) {
-      console.log("workout Success ", data);
       setWorkout(data);
     } else {
-      console.log("Error", data);
+      toast.error("Failed to load workout");
     }
   };
 
@@ -237,10 +230,9 @@ function WorkoutOverview() {
     );
     const data = await response.json();
     if (response.ok) {
-      console.log("Success sets ", data);
       setSets(data);
     } else {
-      console.log("Error", data);
+      toast.error("Failed to load sets");
     }
   };
   useEffect(() => {
@@ -275,11 +267,10 @@ function WorkoutOverview() {
       }),
     });
     if (response.ok) {
-      console.log("Workout succesfully edited");
       await getWorkoutInfo();
       setEditMode(false);
     } else {
-      console.log("Error editing workout");
+      toast.error("Failed to edit workout");
     }
   };
   const editSetSQL = async (
@@ -308,10 +299,9 @@ function WorkoutOverview() {
       }),
     });
     if (response.ok) {
-      console.log("Set Updated");
       await getSets();
     } else {
-      console.log("Error updating sets");
+      toast.error("Failed to update set");
     }
   };
   const addSetSQL = async (
@@ -337,10 +327,8 @@ function WorkoutOverview() {
       }),
     });
     const data = await response.json();
-    if (response.status == 201) {
-      console.log("Success logging SET SQL\n", data);
-    } else {
-      console.log("Error logging set", data);
+    if (!response.ok) {
+      toast.error("Failed to log set");
     }
   };
   const deleteSetSQL = async (sID) => {
@@ -350,10 +338,9 @@ function WorkoutOverview() {
       credentials: "include",
     });
     if (response.ok) {
-      console.log("Success deleting the set ");
       setSetDeleted(true);
     } else {
-      console.log("Error deleting set");
+      toast.error("Failed to delete set");
     }
   };
   useEffect(() => {
@@ -371,10 +358,8 @@ function WorkoutOverview() {
         credentials: "include",
       },
     );
-    if (response.ok) {
-      console.log("Success deleting the workout ");
-    } else {
-      console.log("Error deleting workout");
+    if (!response.ok) {
+      toast.error("Failed to delete workout");
     }
   }; //-------- APP BUILD -------------
   return (
@@ -436,23 +421,15 @@ function WorkoutOverview() {
                         onInput={(e) => {
                           let str = e.target.value;
                           setFocusInput(str);
-                          let filtered = foci.filter((item) => {
-                            if (
-                              item.toLowerCase().includes(str.toLowerCase())
-                            ) {
-                              console.log("Yes", str, item);
-                            }
-                          });
+                          let filtered = foci.filter((item) =>
+                            item.toLowerCase().includes(str.toLowerCase())
+                          );
                           setFilteredList(filtered);
-
-                          console.log(filtered + "\n");
                           setWorkoutChanged(true);
                         }}
                         onSubmit={(e) => {
                           e.preventDefault();
                           setFocusInput(e.target.value);
-                          console.log("Fil");
-                          console.log("Hi");
                         }}
                       ></ComboboxInput>
                     </form>
@@ -692,7 +669,6 @@ function WorkoutOverview() {
                               <ComboboxList>
                                 <ComboboxItem
                                   onSelect={(e) => {
-                                    console.log(e);
                                     wsetExercises.current[exercise.key] =
                                       e.target.value;
                                   }}
