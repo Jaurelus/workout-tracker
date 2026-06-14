@@ -1,7 +1,3 @@
-using System.Data;
-using System.Data.Common;
-using System.Net;
-using System.Numerics;
 using Microsoft.AspNetCore.Mvc;
 using WorkoutTrackerAPI;
 using WorkoutTrackerAPI.models;

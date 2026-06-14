@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 
 function TotalVolume(workout: any) {
   const [total, setTotal] = useState(null);
-  const [currWorkout, setWorkout] = useState();
 
   const getTotalVolume = async (wid) => {
     const response = await fetch(
@@ -26,10 +25,6 @@ function TotalVolume(workout: any) {
   useEffect(() => {
     if (!workout) return;
     getTotalVolume(workout.workout.id);
-  }, [workout]);
-  useEffect(() => {
-    setWorkout(workout);
-    console.log("Workout,", workout.workout.id);
   }, [workout]);
   return (
     <Card className="items-center gap-4 flex flex-1 py-2 ">

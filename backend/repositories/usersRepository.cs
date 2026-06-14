@@ -1,10 +1,6 @@
-using System.Diagnostics.CodeAnalysis;
 using Dapper;
-using Mysqlx.Resultset;
 using WorkoutTrackerAPI.models;
 using BC = BCrypt.Net.BCrypt;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
 
 
 namespace WorkoutTrackerAPI.repositories

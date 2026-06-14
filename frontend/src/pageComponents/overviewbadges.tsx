@@ -4,9 +4,7 @@ import { useEffect, useState } from "react";
 function OverviewBadges({ wid }: { wid: Number }) {
   const [totalExercises, setTotalExercises] = useState(0);
   const [totalSets, setTotalSets] = useState(0);
-  const [wID, setwID] = useState(0);
   console.log("tHE WIDS", wid);
-  console.log(typeof wID);
 
   const getTotalSetCount = async (wID: Number) => {
     if (!wID) return;

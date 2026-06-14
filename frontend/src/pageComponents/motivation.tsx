@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@base-ui/react";
 import { useEffect, useState } from "react";
 
 function Motivation() {

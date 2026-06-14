@@ -1,9 +1,7 @@
 using Dapper;
 using WorkoutTrackerAPI.models;
 using System.Text.Json;
-using Mysqlx.Resultset;
-using System.Data;
-using System.Globalization;
+
 
 namespace WorkoutTrackerAPI.repositories
 {

@@ -1,13 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useRef } from "react";
@@ -145,13 +136,6 @@ function WorkoutOverview() {
     "Abs",
   ];
 
-  const getTotals = () => {
-    if (!groupedSets) return;
-    groupedSets.current.forEach((exercise, index) => {
-      //Add stuff for each column
-      //Push sum to variables
-    });
-  };
   const groupSets = () => {
     if (!sets) return;
     groupedSets.current = [];

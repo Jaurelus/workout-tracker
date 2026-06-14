@@ -1,16 +1,12 @@
 import { Card, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import {
-  Area,
-  AreaChart,
   PolarAngleAxis,
   PolarGrid,
   PolarRadiusAxis,
   Radar,
   RadarChart,
   ResponsiveContainer,
-  XAxis,
-  YAxis,
 } from "recharts";
 
 function OverviewChart({ id }: { id: number }) {

@@ -1,34 +1,16 @@
-import { use, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import "../App.css";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroupAction,
-  SidebarHeader,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from "../components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
 import { Check, ChevronDownIcon } from "lucide-react";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "../components/mode-toggle";
 import { Button } from "../components/ui/button";
 
-import { Link } from "react-router-dom";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
+import { Field, FieldLabel } from "@/components/ui/field";
 import {
   Popover,
   PopoverContent,
@@ -37,21 +19,6 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { Separator } from "@/components/ui/separator";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
-import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import {
   Combobox,
   ComboboxContent,
@@ -65,9 +32,6 @@ import MySidebar from "@/pageComponents/sidebar";
 
 function LogWorkout() {
   const [date, setDate] = useState(new Date());
-  const [focus, setFocus] = useState<string>("");
-  const [vis, setVis] = useState(false);
-  const [setRow, addSetRow] = useState([{ key: 1 }]);
   const [exerciseRow, addExerciseRow] = useState([{ key: 1 }]);
   const exerciseRows = useRef([{ key: 1, sets: 1 }]);
 
@@ -82,9 +46,6 @@ function LogWorkout() {
   const reps = useRef<string[][]>([[], []]);
   const wsetExercises = useRef([]);
   const [addExerciseVis, setAddExerciseVis] = useState(false);
-  const [logDisabled, setlogDisabled] = useState(false);
-
-  const [existVariable, setexistVariable] = useState("");
 
   const [eName, setEName] = useState("");
   const [, forceUpdate] = useState(0);

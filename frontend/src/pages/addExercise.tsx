@@ -1,20 +1,7 @@
 import { useEffect, useState } from "react";
 
 import "../App.css";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroupAction,
-  SidebarHeader,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from "../components/ui/sidebar";
-import { AppSidebar } from "../components/app-sidebar";
-import { useSidebar } from "../components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "../components/mode-toggle";
 import { Button } from "../components/ui/button";
@@ -28,7 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Link } from "react-router-dom";
 import MySidebar from "@/pageComponents/sidebar";
 import EditExerciseModal from "@/pageComponents/editExerciseModal";
 import {
@@ -67,7 +53,6 @@ function Appp() {
     getExercises();
   }, []);
 
-  const editExercise = async (id: Number) => {};
   const deleteExercise = async (id: Number) => {
     const response = await fetch(
       `http://localhost:5117/deleteExercise?eid=${id}`,

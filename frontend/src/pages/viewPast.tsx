@@ -1,33 +1,19 @@
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import "../App.css";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroupAction,
-  SidebarHeader,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from "../components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "../components/mode-toggle";
 import { Button } from "../components/ui/button";
 
 import { Link } from "react-router-dom";
-import { Table, TableHead, TableHeader } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRightToLine } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 import MySidebar from "@/pageComponents/sidebar";
 
 function ViewPast() {
   const [workouts, setWorkouts] = useState(null);
-  const [, forceUpdate] = useState(0);
   const [exerciseCounts, setExerciseCounts] = useState({});
   const [setCounts, setSetCounts] = useState({});
 

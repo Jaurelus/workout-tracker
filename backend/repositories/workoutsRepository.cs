@@ -1,8 +1,4 @@
-using System.Data;
-using System.Data.Common;
 using Dapper;
-using Microsoft.VisualBasic;
-using Mysqlx.Resultset;
 using WorkoutTrackerAPI.models;
 
 namespace WorkoutTrackerAPI

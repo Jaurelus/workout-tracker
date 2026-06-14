@@ -23,7 +23,11 @@ function Consistency() {
   const getWeekWorkouts = async (weekStart, weekEnd) => {
     const response = await fetch(
       `http://localhost:5117/getWorkoutsBetween?weekStart=${weekStart}&weekEnd=${weekEnd}`,
-      { headers: { "Content-Type": "application/json" }, method: "GET", credentials: "include" },
+      {
+        headers: { "Content-Type": "application/json" },
+        method: "GET",
+        credentials: "include",
+      },
     );
     const data = await response.json();
     if (response.ok) {

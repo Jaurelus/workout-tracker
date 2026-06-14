@@ -1,8 +1,7 @@
 using Dapper;
 using WorkoutTrackerAPI.models;
 using System.Text.Json;
-using Microsoft.VisualBasic;
-using Mysqlx.Resultset;
+
 
 namespace WorkoutTrackerAPI.repositories
 {
@@ -79,7 +78,7 @@ namespace WorkoutTrackerAPI.repositories
         }
         public async Task<int> exerciseExists(string exerciseName)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"SELECT eID
                         FROM Exercises
                         WHERE eName = @name";
@@ -99,7 +98,7 @@ namespace WorkoutTrackerAPI.repositories
 
         public async Task<int> getTotalExercisesForWorkout(int id)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"SELECT COUNT(DISTINCT exerciseID) FROM WSets
                         WHERE workoutID = @WID
                         ";
@@ -111,7 +110,7 @@ namespace WorkoutTrackerAPI.repositories
 
         public async Task<int> updateExercise(Exercises exercise)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"UPDATE Exercises
                          SET eName = @Name,primaryMuscle = @Primary,secondaryMuscle = @Secondary, tips = @Tips
                          WHERE eID = @EID";
@@ -128,7 +127,7 @@ namespace WorkoutTrackerAPI.repositories
 
         public async Task deleteExercise(int eid)
         {
-            var connection = _db.CreateConnection();
+            using var connection = _db.CreateConnection();
             var sql = @"DELETE FROM Exercises
                         where eID=@EID";
             await connection.ExecuteAsync(sql, new
