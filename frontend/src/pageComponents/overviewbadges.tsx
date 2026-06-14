@@ -17,6 +17,7 @@ function OverviewBadges({ wid }: { wid: Number }) {
       {
         headers: { "Content-Type": "application/json" },
         method: "GET",
+        credentials: "include",
       },
     );
     const data = await response.json();
@@ -33,6 +34,7 @@ function OverviewBadges({ wid }: { wid: Number }) {
       {
         headers: { "Content-Type": "application/json" },
         method: "GET",
+        credentials: "include",
       },
     );
     const data = await response.json();

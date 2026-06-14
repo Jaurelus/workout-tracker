@@ -14,7 +14,7 @@ function OverviewIntense({ workout }: { workout: any }) {
   const getTopSet = async (wid: number) => {
     const response = await fetch(
       `http://localhost:5117/getTopVolumeSet?wid=${wid}`,
-      { headers: { "Content-Type": "application/json" }, method: "GET" },
+      { headers: { "Content-Type": "application/json" }, method: "GET", credentials: "include" },
     );
     const data = await response.json();
     if (response.ok) {

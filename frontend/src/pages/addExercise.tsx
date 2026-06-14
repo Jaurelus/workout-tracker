@@ -55,6 +55,7 @@ function Appp() {
     const response = await fetch("http://localhost:5117/getExercises", {
       headers: { "Content-Type": "application/json" },
       method: "GET",
+      credentials: "include",
     });
     const data = await response.json();
     if (response.status == 200) {
@@ -73,6 +74,7 @@ function Appp() {
       {
         headers: { "Content-Type": "application/json" },
         method: "DELETE",
+        credentials: "include",
       },
     );
     if (response.ok) {

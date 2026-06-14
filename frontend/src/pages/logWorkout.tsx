@@ -154,6 +154,7 @@ function LogWorkout() {
     const response = await fetch("http://localhost:5117/addExercise", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
+      credentials: "include",
       body: JSON.stringify({
         name: eName,
       }),
@@ -173,6 +174,7 @@ function LogWorkout() {
       {
         headers: { "Content-Type": "application/json" },
         method: "GET",
+        credentials: "include",
       },
     );
     const data = await response.json();
@@ -186,6 +188,7 @@ function LogWorkout() {
   const getExerciseNames = async () => {
     const response = await fetch("http://localhost:5117/getExerciseNames", {
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
     const data = await response.json();
     if (response.ok) {
@@ -224,6 +227,7 @@ function LogWorkout() {
     const response = await fetch("http://localhost:5117/addSet", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
+      credentials: "include",
       body: JSON.stringify({
         exercises: { name: exerciseIteration },
         name: exerciseIteration,
@@ -245,6 +249,7 @@ function LogWorkout() {
     const response = await fetch("http://localhost:5117/addWorkout", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
+      credentials: "include",
       body: JSON.stringify({
         Date: localDate,
         Focus: focusInput,
@@ -262,6 +267,7 @@ function LogWorkout() {
     const response = await fetch("http://localhost:5117/getLatestWorkout", {
       headers: { "Content-Type": "application/json" },
       method: "GET",
+      credentials: "include",
     });
     const data = await response.json();
     if (response.ok) {

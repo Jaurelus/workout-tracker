@@ -58,7 +58,6 @@ function EditExerciseModal({
     }
   };
   //--------------- APP BUILD ---------------
-  if (!selectedExercise) return null;
 
   return (
     <AlertDialog open={visibility}>

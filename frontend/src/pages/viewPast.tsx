@@ -36,6 +36,7 @@ function ViewPast() {
     const response = await fetch("http://localhost:5117/getWorkouts", {
       headers: { "Content-Type": "application/json" },
       method: "GET",
+      credentials: "include",
     });
     const data = await response.json();
     if (response.ok) {
@@ -62,6 +63,7 @@ function ViewPast() {
       {
         headers: { "Content-Type": "application/json" },
         method: "GET",
+        credentials: "include",
       },
     );
     const data = await response.json();
@@ -76,6 +78,7 @@ function ViewPast() {
       {
         headers: { "Content-Type": "application/json" },
         method: "GET",
+        credentials: "include",
       },
     );
     const data = await response.json();

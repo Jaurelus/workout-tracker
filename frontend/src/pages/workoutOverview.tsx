@@ -180,6 +180,7 @@ function WorkoutOverview() {
       {
         headers: { "Content-Type": "application/json" },
         method: "GET",
+        credentials: "include",
       },
     );
     const data = await response.json();
@@ -196,6 +197,7 @@ function WorkoutOverview() {
     const response = await fetch("http://localhost:5117/addExercise", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
+      credentials: "include",
       body: JSON.stringify({
         name: eName,
       }),
@@ -219,6 +221,7 @@ function WorkoutOverview() {
       {
         headers: { "Content-Type": "application/json" },
         method: "GET",
+        credentials: "include",
       },
     );
     const data = await response.json();
@@ -242,7 +245,7 @@ function WorkoutOverview() {
   const getSets = async () => {
     const response = await fetch(
       `http://localhost:5117/getSetByWID/?wID=${id}`,
-      { headers: { "Content-Type": "application/json" }, method: "GET" },
+      { headers: { "Content-Type": "application/json" }, method: "GET", credentials: "include" },
     );
     const data = await response.json();
     if (response.ok) {
@@ -261,6 +264,7 @@ function WorkoutOverview() {
   const getExerciseNames = async () => {
     const response = await fetch("http://localhost:5117/getExerciseNames", {
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
     const data = await response.json();
     if (response.ok) {
@@ -275,6 +279,7 @@ function WorkoutOverview() {
     const response = await fetch(`http://localhost:5117/editWorkout`, {
       headers: { "Content-Type": "application/json" },
       method: "PUT",
+      credentials: "include",
       body: JSON.stringify({
         date: date,
         focus: focusInput,
@@ -303,6 +308,7 @@ function WorkoutOverview() {
     const response = await fetch("http://localhost:5117/editSet", {
       headers: { "Content-Type": "application/json" },
       method: "PUT",
+      credentials: "include",
       body: JSON.stringify({
         exercises: {
           id: exists ? exists : await exerciseExists(exerciseIteration),
@@ -333,6 +339,7 @@ function WorkoutOverview() {
     const response = await fetch("http://localhost:5117/addSet", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
+      credentials: "include",
       body: JSON.stringify({
         exercises: { name: exerciseIteration },
         name: exerciseIteration,
@@ -352,6 +359,7 @@ function WorkoutOverview() {
     const response = await fetch(`http://localhost:5117/deleteSet?sID=${sID}`, {
       headers: { "Content-Type": "application/json" },
       method: "DELETE",
+      credentials: "include",
     });
     if (response.ok) {
       console.log("Success deleting the set ");
@@ -372,6 +380,7 @@ function WorkoutOverview() {
       {
         headers: { "Content-Type": "application/json" },
         method: "DELETE",
+        credentials: "include",
       },
     );
     if (response.ok) {
@@ -512,7 +521,7 @@ function WorkoutOverview() {
                       <AlertDialogAction
                         className="text-white!"
                         onClick={async () => {
-                          await deleteWorkout(Number(id));
+                          await deleteWorkout();
                           navigate("/pastWorkouts");
                         }}
                       >

@@ -9,8 +9,9 @@ function LastWorkout() {
   //--------- API CALL ------------
   const getLatestWorkout = async () => {
     const response = await fetch("http://localhost:5117/getLatestWorkout", {
-      headers: { "Content-Type": "applcation/json" },
+      headers: { "Content-Type": "application/json" },
       method: "GET",
+      credentials: "include",
     });
     const data = await response.json();
     if (response.ok) {
@@ -28,7 +29,7 @@ function LastWorkout() {
     if (!wid) return;
     const response = await fetch(
       `http://localhost:5117/getVolumeByExercise?wid=${wid}`,
-      { headers: { "Content-Type": "application/json" }, method: "GET" },
+      { headers: { "Content-Type": "application/json" }, method: "GET", credentials: "include" },
     );
     const data = await response.json();
     if (response.ok) {

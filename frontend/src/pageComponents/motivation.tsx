@@ -30,6 +30,7 @@ function Motivation() {
       {
         headers: { "Content-Type": "application/json" },
         method: "GET",
+        credentials: "include",
       },
     );
     const data = await response.json();
@@ -49,7 +50,6 @@ function Motivation() {
   }, []);
 
   const mapDates = () => {
-    if (!offset) return;
     let sliced = workoutDates.map((workout) => Number(workout.slice(3, 5)));
     setMappedDates(sliced);
     console.log("SLICED : ", sliced);

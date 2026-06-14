@@ -13,7 +13,9 @@ function Consistency() {
   const [workDays, setWorkDays] = useState([]);
 
   const mapDays = () => {
-    let mapped = weekWorkouts.map((workout) => new Date(workout.date).getDay());
+    let mapped = weekWorkouts.map(
+      (workout) => (new Date(workout.date).getDay() + 6) % 7,
+    );
     return mapped;
   };
   //----------- API CALL ------------
@@ -21,7 +23,7 @@ function Consistency() {
   const getWeekWorkouts = async (weekStart, weekEnd) => {
     const response = await fetch(
       `http://localhost:5117/getWorkoutsBetween?weekStart=${weekStart}&weekEnd=${weekEnd}`,
-      { headers: { "Content-Type": "application/json" }, method: "GET" },
+      { headers: { "Content-Type": "application/json" }, method: "GET", credentials: "include" },
     );
     const data = await response.json();
     if (response.ok) {

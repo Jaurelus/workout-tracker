@@ -31,6 +31,7 @@ function AddExerciseModal({
     const response = await fetch("http://localhost:5117/addExercise", {
       headers: { "Content-Type": "application/json" },
       method: "POST",
+      credentials: "include",
       body: JSON.stringify({
         name: eName,
         primary: ePrimary ? ePrimary.split(",") : [ePrimary],

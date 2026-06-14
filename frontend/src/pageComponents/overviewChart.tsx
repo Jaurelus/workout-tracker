@@ -19,7 +19,7 @@ function OverviewChart({ id }: { id: number }) {
   const getSets = async () => {
     const response = await fetch(
       `http://localhost:5117/getSetByWID/?wID=${id}`,
-      { headers: { "Content-Type": "application/json" }, method: "GET" },
+      { headers: { "Content-Type": "application/json" }, method: "GET", credentials: "include" },
     );
     const data = await response.json();
     if (response.ok) {

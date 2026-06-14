@@ -9,7 +9,11 @@ function TotalVolume(workout: any) {
   const getTotalVolume = async (wid) => {
     const response = await fetch(
       `http://localhost:5117/getTotalVolume?wid=${wid}`,
-      { headers: { "Content-Type": "application/json" }, method: "GET" },
+      {
+        headers: { "Content-Type": "application/json" },
+        method: "GET",
+        credentials: "include",
+      },
     );
     const data = await response.json();
     if (response.ok) {
@@ -22,7 +26,7 @@ function TotalVolume(workout: any) {
   useEffect(() => {
     if (!workout) return;
     getTotalVolume(workout.workout.id);
-  }, []);
+  }, [workout]);
   useEffect(() => {
     setWorkout(workout);
     console.log("Workout,", workout.workout.id);

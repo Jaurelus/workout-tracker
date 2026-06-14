@@ -16,6 +16,7 @@ function TopWeight(workout: any) {
     const response = await fetch(`http://localhost:5117/getTopSet?wID=${wid}`, {
       headers: { "Content-Type": "application/json" },
       method: "GET",
+      credentials: "include",
     });
     const data = await response.json();
     if (response.ok) {

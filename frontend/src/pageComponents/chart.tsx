@@ -36,8 +36,9 @@ function Chart() {
         ? `http://localhost:5117/getVolumesByFocus?focus=${encodeURIComponent(focus)}`
         : "http://localhost:5117/getVolumesByFocus",
       {
-        headers: { Content_Type: "application/json" },
+        headers: { "Content-Type": "application/json" },
         method: "GET",
+        credentials: "include",
       },
     );
     const data = await response.json();
@@ -50,8 +51,9 @@ function Chart() {
   };
   const getTopFoci = async () => {
     const response = await fetch("http://localhost:5117/getTopFoci", {
-      headers: { Content_Type: "application/json" },
+      headers: { "Content-Type": "application/json" },
       method: "GET",
+      credentials: "include",
     });
     const data = await response.json();
     if (response.ok) {
